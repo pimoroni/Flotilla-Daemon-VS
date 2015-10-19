@@ -10,6 +10,8 @@
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
+#define PID 9220
+#define VID 1003
 #define FLOTILLA_PORT 9393
 
 std::thread thread_dock_scan;
@@ -43,6 +45,7 @@ void for_each_port(void(*handle_port)(struct sp_port* port));
 int main(int argc, char *argv[]);
 
 bool running;
+bool safe_to_exit;
 
 Flotilla flotilla;
 

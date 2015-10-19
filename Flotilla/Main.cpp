@@ -1,4 +1,5 @@
 #include "main.h"
+#include <signal.h>
 
 void cleanup(void){
 	int i;
@@ -18,11 +19,25 @@ void cleanup(void){
 	}
 }
 
+void websocket_stop(void){
+	std::cout << "Stopping WebSocket server..." << std::endl;
+	websocket_server.stop_listening();
+
+	for (auto client : clients){
+
+		websocket_server.send(client.first, "bye", websocketpp::frame::opcode::text);
+		try{
+			websocket_server.close(client.first, websocketpp::close::status::going_away, "Flotilla Server Shutting Down");
+		}catch(websocketpp::lib::error_code error_code){
+			std::cout << "lib:error_code" << error_code << std::endl;
+		}
+	}
+}
+
 void sigint_handler(int sig_num){
-	//fprintf(stdout, "Exiting cleanly, please wait...");
-	std::cout << "Exiting cleanly, please wait..." << std::endl;
-	cleanup();
-	exit(1);
+	//std::cout << "Exiting cleanly, please wait..." << std::endl;
+	websocket_stop();
+	//exit(1);
 }
 
 void update_connected_docks(){
@@ -34,7 +49,6 @@ void update_connected_docks(){
 	int x, y;
 	for (x = 0; x < MAX_DOCKS; x++){
 		if (flotilla.dock[x].port == NULL || flotilla.dock[x].state == Disconnected) {
-			//printf("Port is null? %d\n", x);
 			continue;
 		};
 
@@ -56,7 +70,6 @@ void update_connected_docks(){
 
 		if (!found){
 			flotilla.dock[x].disconnect();
-			//printf("Dock Lost\n");
 			std::cout << "Dock Lost" << std::endl;
 		}
 	}
@@ -80,9 +93,6 @@ void worker_dock_scan(void){
 	return;
 }
 
-#define PID 9220
-#define VID 1003
-
 void scan_for_host(struct sp_port* port){
 	int x;
 
@@ -103,14 +113,11 @@ void scan_for_host(struct sp_port* port){
 
 	if (strcmp(port_desc, "Flotilla Dock") == 0 || (usb_vid == VID && usb_pid == PID)){
 
-		//printf("Potential host found: %s\n", port_name);
-
 		FlotillaDock temp;
 
 		if (temp.set_port(port)){
 			temp.disconnect();
 
-			//printf("Successfully Identified Dock. Serial: %s\n", temp.serial.c_str());
 			std::cout << "Successfully Identified Dock. Serial: " << temp.serial << std::endl;
 
 			/*
@@ -124,13 +131,11 @@ void scan_for_host(struct sp_port* port){
 			for (x = 0; x < MAX_DOCKS; x++){
 				if (flotilla.dock[x].serial.compare(temp.serial) == 0){
 
-					//printf("Found Existing Dock With Serial %s at index %d\n", temp.serial.c_str(), x);
 					std::cout << "Found existing Dock with serial " << temp.serial << " at index " << x << std::endl;
 
 					if (flotilla.dock[x].state == Disconnected){
 
 						if (flotilla.dock[x].set_port(port)){
-							//printf("Success! %d\n", x);
 							std::cout << "Success! " << x << std::endl;
 							//flotilla.dock[x].start();
 						};
@@ -143,11 +148,9 @@ void scan_for_host(struct sp_port* port){
 
 			for (x = 0; x < MAX_DOCKS; x++){
 				if (flotilla.dock[x].state == Disconnected){
-					//printf("Using Dock slot at index %d\n", x);
 					std::cout << "Using Dock slot at index " << x << std::endl;
 
 					if (flotilla.dock[x].set_port(port)){
-						//printf("Success! %d\n", x);
 						std::cout << "Success! " << x << std::endl;
 						//flotilla.dock[x].start();
 					};
@@ -201,6 +204,8 @@ void init_client(websocketpp::connection_hdl hdl, FlotillaClient client){
 
 void send_to_clients(std::string command){
 
+	if (websocket_server.stopped()) return;
+
 	//std::cout << "Sending to clients: " << command << std::endl;
 
 	for (auto client : clients){
@@ -226,11 +231,9 @@ void worker_update_clients(void){
 
 		for (dock_idx = 0; dock_idx < MAX_DOCKS; dock_idx++){
 
-			while (flotilla.dock[dock_idx].has_pending_events()){
-
-				send_to_clients(flotilla.dock[dock_idx].get_next_event());
-
-			};
+			for (auto event : flotilla.dock[dock_idx].get_pending_events()){
+				send_to_clients(event);
+			}
 
 			if (flotilla.dock[dock_idx].state != Connected) continue;
 
@@ -240,19 +243,9 @@ void worker_update_clients(void){
 				send_to_clients(command);
 			}
 
-			/*for (channel_idx = 0; channel_idx < MAX_CHANNELS; channel_idx++){
-
-				if (flotilla.dock[dock_idx].module[channel_idx].state != ModuleConnected) continue;
-
-				std::string command = flotilla.dock[dock_idx].get_next_command(channel_idx);
-
-				if (!command.empty()) send_to_clients(command);
-
-			}*/
-
 		}
 
-		send_to_clients("update");
+		//send_to_clients("update");
 
 		auto elapsed = std::chrono::high_resolution_clock::now() - start;
 
@@ -303,6 +296,11 @@ void websocket_on_message(websocketpp::connection_hdl hdl, server::message_ptr m
 	FlotillaClient& client = get_data_from_hdl(hdl);
 
 	auto payload = msg->get_payload();
+
+	if (payload.compare("quit") == 0){
+		std::cout << "Quit Received" << std::endl;
+		websocket_stop();
+	}
 
 	if (payload.compare("hello") == 0){
 		std::cout << "Client Saying Hello!" << std::endl;
@@ -377,14 +375,44 @@ void websocket_on_fail(websocketpp::connection_hdl hdl) {
 	std::cout << "Connection Failed " << std::endl;
 }
 
+/*
+bool CtrlHandler(DWORD fdwCtrlType){
+	switch (fdwCtrlType){
+	case CTRL_C_EVENT:
+	case CTRL_CLOSE_EVENT:
+		websocket_stop();
+		std::cout << "Doing closey things..." << std::endl;
+		std::cout << "Does this stay open?..." << std::endl;
+		while (!safe_to_exit){
+			std::cout << "Waiting..." << std::endl;
+			std::this_thread::sleep_for(std::chrono::microseconds(1000000));
+		};
+		return TRUE;
+	default:
+		return FALSE;
+	}
+}
+*/
+
 /* Main */
 
 int main(int argc, char *argv[])
 {
 	int i;
 	running = 1;
+	safe_to_exit = 0;
+
+	/*struct sigaction sigIntHandler;
+	sigIntHandler.sa_handler = sigint_handler;
+	sigemptyset(&sigIntHandler.sa_mask);
+	sig_int_handler.sa_flags = 0;
+	sigaction(SIGINT, &sigIntHandler, NULL);*/
 
 	signal(SIGINT, sigint_handler);
+
+	/*if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, TRUE)){
+		std::cout << "Could not register Ctrl handler" << std::endl;
+	}*/
 
 	thread_dock_scan = std::thread(worker_dock_scan);
 	thread_update_clients = std::thread(worker_update_clients);
@@ -411,8 +439,13 @@ int main(int argc, char *argv[])
 	websocket_server.start_accept();
 	websocket_server.run();
 
+	std::cout << "Websocket Server Stopped, Cleaning Up..." << std::endl;
+
 	cleanup();
 
-	return 0;
+	std::cout << "Bye bye!" << std::endl;
 
+	std::this_thread::sleep_for(std::chrono::microseconds(2000000));
+
+	return 0;
 }

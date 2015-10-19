@@ -18,12 +18,11 @@ void FlotillaDock::tick(){
 	if (state != Connected) return;
 	int channel_index;
 
-	//printf("Tick: %s\n",name.c_str());
-
 	mutex.lock();
 	while (command_queue.size() > 0){
 		sp_blocking_write(port, command_queue.front().c_str(), command_queue.front().length(), 0);
 		command_queue.pop();
+		std::this_thread::sleep_for(std::chrono::microseconds(1000));
 	}
 	mutex.unlock();
 
@@ -38,12 +37,11 @@ void FlotillaDock::tick(){
 			update = stream.str();
 
 			std::cout << "Sending to dock: " << update << std::endl;
-			//printf("Sending to dock: %s \n", update.c_str());
 
 			sp_blocking_write(port, update.c_str(), update.length(), 0);
 			sp_blocking_write(port, "\r", 1, 0);
 
-			std::this_thread::sleep_for(std::chrono::microseconds(1000));
+			std::this_thread::sleep_for(std::chrono::microseconds(10000));
 		}
 	}
 
@@ -54,7 +52,7 @@ void FlotillaDock::tick(){
 
 		switch (command.at(0)){
 		case '#':{
-			printf("Dock: %d, Debug: %s\n", index, command.substr(2).c_str());
+			std::cout << "Dock: " << index << ", Debug: " << command.substr(2) << std::endl;
 		} break;
 		case 'u':{
 
@@ -62,7 +60,7 @@ void FlotillaDock::tick(){
 
 			std::string data = command.substr(size + 4 + module[channel].name.length());
 
-			// Oh my! cout is messy and ugly and slow, there are good arguments for it, but I'm a big boy and can handle fprintf!
+			// Oh my! cout is messy and ugly and slow, there are good arguments for it, but I'm a big boy and can handle printf!
 			//std::cout << "Dock: " << index << ", Channel: " << channel << ", Name: " << module[channel].name << " Data: " << data << std::endl;
 			//printf("Dock: %d, Channel: %d, Name: %s, Data: %s\n", index, channel, module[channel].name.c_str(), data.c_str());
 
@@ -75,7 +73,7 @@ void FlotillaDock::tick(){
 
 			std::string name = command.substr(size + 3);
 
-			printf("Dock %d, Ch %d, Lost Module %s\n", index, channel, name.c_str());
+			std::cout << "Dock " << index << ", Ch " << channel << " Lost Module: " << name << std::endl;
 
 			module[channel].disconnect();
 			queue_module_event(channel);
@@ -87,7 +85,7 @@ void FlotillaDock::tick(){
 
 			std::string name = command.substr(size + 3);
 
-			printf("Dock %d, Ch %d, New Module %s\n", index, channel, name.c_str());
+			std::cout << "Dock " << index << ", Ch " << channel << " New Module: " << name << std::endl;
 
 			module[channel].connect(name);
 			queue_module_event(channel);
@@ -122,14 +120,14 @@ void FlotillaDock::disconnect(void){
 
 	sp_close(port);
 	sp_free_port(port);
-	//fprintf(stdout,"Dock Disconnected, serial: %s\n",serial);
+	std::cout << "Dock Disconnected, serial " << serial << std::endl;
 }
 
 void FlotillaDock::cmd_enumerate(void){
 
 	std::this_thread::sleep_for(std::chrono::microseconds(100000));
 	sp_blocking_write(port, "e\r", 2, 0);
-	std::cout << "Enumerating Dock" << serial << "..." << std::endl;
+	std::cout << "Enumerating Dock, serial " << serial << "..." << std::endl;
 
 }
 
@@ -211,6 +209,18 @@ bool FlotillaDock::has_pending_events(){
 	return event_queue.size() > 0;
 }
 
+
+std::vector<std::string> FlotillaDock::get_pending_events(void){
+	std::vector<std::string> events;
+	mutex.lock();
+	while (has_pending_events()){
+		events.push_back(event_queue.front());
+		event_queue.pop();
+	}
+	mutex.unlock();
+	return events;
+}
+
 std::string FlotillaDock::get_next_event(){
 
 	std::string event = "";
@@ -274,7 +284,7 @@ bool FlotillaDock::get_version_info(){
 	information twice, but the dock is dropping/ignoring the second request?
 	*/
 
-	printf("\n\nSending Version Request...\n");
+	std::cout << std::endl << std::endl << "Sending Version Request..." << std::endl;
 
 	//sp_flush(port, SP_BUF_OUTPUT);
 	//sp_flush(port, SP_BUF_INPUT);
@@ -292,7 +302,7 @@ bool FlotillaDock::get_version_info(){
 		std::string line = sp_readline(port);
 		std::string::size_type position;
 
-		printf("Got line %s\n", line.c_str());
+		std::cout << "Got " << line << std::endl;
 
 		if (line.length() > 0 && line.at(0) == '#'){
 

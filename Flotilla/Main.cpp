@@ -46,22 +46,44 @@ void update_connected_docks(){
 	result = sp_list_ports(&ports);
 	if (result != SP_OK){ return; };
 
-	int x, y;
+	int x = 0;
+	int y = 0;
+
+	/*while (ports[y] != NULL) {
+		struct sp_port* port = ports[y];
+		const char * name = sp_get_port_name(port);
+		const char * desc = sp_get_port_name(port);
+		int usb_vid, usb_pid;
+
+		sp_get_port_usb_vid_pid(port, &usb_vid, &usb_pid);
+
+		std::cout << "Checking serial port " << name << " " << desc << " " << usb_vid << ":" << usb_pid << std::endl;
+
+		y++;
+	}*/
+
 	for (x = 0; x < MAX_DOCKS; x++){
+
 		if (flotilla.dock[x].port == NULL || flotilla.dock[x].state == Disconnected) {
 			continue;
 		};
 
-		bool found = FALSE;
-		y = 0;
+		//std::cout << "Checking for dock " << flotilla.dock[x].name << std::endl;
+
+		const char* a = sp_get_port_name(flotilla.dock[x].port);
+		bool found = false;
 
 		while (ports[y] != NULL){
 			struct sp_port* port = ports[y];
+			const char * b = sp_get_port_name(port);
+			int usb_vid, usb_pid;
 
-			const char* a = sp_get_port_name(flotilla.dock[x].port);
-			const char* b = sp_get_port_name(port);
+			sp_get_port_usb_vid_pid(port, &usb_vid, &usb_pid);
 
-			if (strcmp(a, b) == 0){
+			//std::cout << "Checking serial port " << b << std::endl;
+
+			if (b != NULL && usb_vid == VID && usb_pid == PID && strcmp(a, b) == 0){
+				//std::cout << "Found dock " << flotilla.dock[x].name << std::endl;
 				found = true;
 			}
 
@@ -69,8 +91,8 @@ void update_connected_docks(){
 		}
 
 		if (!found){
-			flotilla.dock[x].disconnect();
 			std::cout << "Dock Lost" << std::endl;
+			flotilla.dock[x].disconnect();
 		}
 	}
 
@@ -100,7 +122,14 @@ void scan_for_host(struct sp_port* port){
 	const char* port_desc = sp_get_port_description(port);
 	int usb_vid, usb_pid;
 
+	if (port_name == NULL || port_desc == NULL) {
+		return;
+	}
+
+	//std::cout << "Checking port: " << port_name << " : " << port_desc << std::endl;
+
 	sp_get_port_usb_vid_pid(port, &usb_vid, &usb_pid);
+
 
 	for (x = 0; x < MAX_DOCKS; x++){
 		if (flotilla.dock[x].state != Disconnected && strcmp(port_name, sp_get_port_name(flotilla.dock[x].port)) == 0){
@@ -162,21 +191,6 @@ void scan_for_host(struct sp_port* port){
 		}
 
 	}
-}
-
-void for_each_port(void(*handle_port)(struct sp_port* port)){
-	enum sp_return res;
-	struct sp_port** ports = NULL;
-	res = sp_list_ports(&ports);
-	if (res != SP_OK){
-		return;
-	}
-	int x = 0;
-	while (ports[x] != NULL){
-		(*handle_port)(ports[x]);
-		x++;
-	}
-	sp_free_port_list(ports);
 }
 
 void init_client(websocketpp::connection_hdl hdl, FlotillaClient client){
@@ -300,6 +314,7 @@ void websocket_on_message(websocketpp::connection_hdl hdl, server::message_ptr m
 	if (payload.compare("quit") == 0){
 		std::cout << "Quit Received" << std::endl;
 		websocket_stop();
+		return;
 	}
 
 	if (payload.compare("hello") == 0){
@@ -373,6 +388,8 @@ void websocket_on_close(websocketpp::connection_hdl hdl) {
 
 void websocket_on_fail(websocketpp::connection_hdl hdl) {
 	std::cout << "Connection Failed " << std::endl;
+
+	clients.erase(hdl);
 }
 
 /*
@@ -400,7 +417,7 @@ int main(int argc, char *argv[])
 {
 	int i;
 	running = 1;
-	safe_to_exit = 0;
+	//safe_to_exit = 0;
 
 	/*struct sigaction sigIntHandler;
 	sigIntHandler.sa_handler = sigint_handler;
@@ -431,7 +448,7 @@ int main(int argc, char *argv[])
 	std::cout << "Flotilla Ready To Set Sail..." << std::endl;
 
 	websocket_server.init_asio();
-	websocket_server.set_reuse_addr(TRUE);
+	websocket_server.set_reuse_addr(FALSE);
 	websocket_server.listen(boost::asio::ip::tcp::v4(), FLOTILLA_PORT);
 
 	std::cout << "Listening on port " << FLOTILLA_PORT << std::endl;

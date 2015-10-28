@@ -65,6 +65,7 @@ This will probably change to some method of subscribing to a particular dock
 
 bool sp_wait_for(struct sp_port* port, std::string wait_for);
 std::string sp_readline(struct sp_port* port);
+void for_each_port(void(*handle_port)(struct sp_port* port));
 
 int main(int argc, char *argv[]);
 

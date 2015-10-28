@@ -17,6 +17,21 @@ bool sp_wait_for(struct sp_port* port, std::string wait_for){
 
 }
 
+void for_each_port(void(*handle_port)(struct sp_port* port)) {
+	enum sp_return res;
+	struct sp_port** ports = NULL;
+	res = sp_list_ports(&ports);
+	if (res != SP_OK) {
+		return;
+	}
+	int x = 0;
+	while (ports[x] != NULL) {
+		(*handle_port)(ports[x]);
+		x++;
+	}
+	sp_free_port_list(ports);
+}
+
 std::string sp_readline(struct sp_port* port){
 
 	std::string buffer = "";

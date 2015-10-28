@@ -16,32 +16,35 @@ void FlotillaDock::queue_command(std::string command){
 
 void FlotillaDock::tick(){
 	if (state != Connected) return;
+	std::string update;
+	std::ostringstream stream;
 	int channel_index;
 
 	mutex.lock();
 	while (command_queue.size() > 0){
 		sp_blocking_write(port, command_queue.front().c_str(), command_queue.front().length(), 0);
 		command_queue.pop();
-		std::this_thread::sleep_for(std::chrono::microseconds(1000));
+		std::this_thread::sleep_for(std::chrono::microseconds(100000));
 	}
 	mutex.unlock();
 
 	for (channel_index = 0; channel_index < MAX_CHANNELS; channel_index++){
 		if (module[channel_index].state != ModuleConnected) continue;
 
-		std::string update;
 		if (module[channel_index].get_next_update(update)){
 
-			std::ostringstream stream;
 			stream << "s " << channel_index << " " << update;
 			update = stream.str();
+			stream.clear();
 
 			std::cout << "Sending to dock: " << update << std::endl;
 
 			sp_blocking_write(port, update.c_str(), update.length(), 0);
 			sp_blocking_write(port, "\r", 1, 0);
 
-			std::this_thread::sleep_for(std::chrono::microseconds(10000));
+			std::this_thread::sleep_for(std::chrono::microseconds(100000));
+
+			update.clear();
 		}
 	}
 

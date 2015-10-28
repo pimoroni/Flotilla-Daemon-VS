@@ -12,7 +12,7 @@
 
 #define PID 9220
 #define VID 1003
-#define FLOTILLA_PORT 9393
+#define FLOTILLA_PORT 9395
 
 std::thread thread_dock_scan;
 std::thread thread_update_clients;
@@ -40,12 +40,11 @@ void cleanup(void);
 void sigint_handler(int sig_num);
 
 void scan_for_host(struct sp_port* port);
-void for_each_port(void(*handle_port)(struct sp_port* port));
 
 int main(int argc, char *argv[]);
 
 bool running;
-bool safe_to_exit;
+//bool safe_to_exit;
 
 Flotilla flotilla;
 

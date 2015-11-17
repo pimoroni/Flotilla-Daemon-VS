@@ -1,6 +1,8 @@
 CC = g++-4.9
-LDFLAGS = -std=c++11 -O2 -I../../flotilla-daemon/lib/websocketpp/ -I../../flotilla-daemon/lib/ -lserialport -lboost_system -lpthread
-CFLAGS = -c -std=c++11 -O2 -I../../flotilla-daemon/lib/websocketpp/
+#DEPS = ../../flotilla-daemon/lib/
+DEPS = ../../flotilla-dependencies/
+LDFLAGS = -O2 -std=c++11 -I${DEPS}websocketpp/ -I${DEPS} -lserialport -lboost_system -lpthread
+CFLAGS = -O2 -c -std=c++11 -I${DEPS}websocketpp/
 
 SOURCES=Flotilla.cpp Flotilla_Dock.cpp Flotilla_Module.cpp Flotilla_Client.cpp Main.cpp
 BUILDDIR=Debug

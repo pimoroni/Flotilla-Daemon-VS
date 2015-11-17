@@ -126,12 +126,18 @@ void scan_for_host(struct sp_port* port) {
 		return;
 	}
 
-	//std::cout << "Checking port: " << port_name << " : " << port_desc << std::endl;
+	std::cout << "Main.cpp: Checking port: " << port_name << " : " << port_desc << std::endl;
 
-	sp_get_port_usb_vid_pid(port, &usb_vid, &usb_pid);
-	if (usb_vid != VID || usb_pid != PID) {
+	if(sp_get_port_usb_vid_pid(port, &usb_vid, &usb_pid) != SP_OK){
+        std::cout << "Main.cpp: Could not get VID/PID" << std::endl;
+        return;
+    }
+	
+    if (usb_vid != VID || usb_pid != PID) {
 		return;
 	}
+    
+    std::cout << "Main.cpp: Got details VID: " << usb_vid << " PID: " << usb_pid << std::endl;
 
 	for (x = 0; x < MAX_DOCKS; x++) {
 		if (flotilla.dock[x].state != Disconnected) {

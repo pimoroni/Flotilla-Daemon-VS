@@ -10,8 +10,8 @@
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
-#define PID 9220
-#define VID 1003
+#define PID 0x08C3 //9220
+#define VID 0x16D0 //1003
 #define FLOTILLA_PORT 9395
 
 std::thread thread_dock_scan;

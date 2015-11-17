@@ -17,7 +17,6 @@ void FlotillaDock::queue_command(std::string command){
 void FlotillaDock::tick(){
 	if (state != Connected) return;
 	std::string update;
-	std::ostringstream stream;
 	int channel_index;
 
 	mutex.lock();
@@ -33,9 +32,9 @@ void FlotillaDock::tick(){
 
 		if (module[channel_index].get_next_update(update)){
 
+			std::ostringstream stream;
 			stream << "s " << channel_index << " " << update;
 			update = stream.str();
-			stream.clear();
 
 			std::cout << "Sending to dock: " << update << std::endl;
 
@@ -44,7 +43,6 @@ void FlotillaDock::tick(){
 
 			std::this_thread::sleep_for(std::chrono::microseconds(100000));
 
-			update.clear();
 		}
 	}
 

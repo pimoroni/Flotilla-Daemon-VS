@@ -137,6 +137,9 @@ bool FlotillaDock::set_port(sp_port *new_port){
 
 	state = Connecting;
 	if (sp_copy_port(new_port, &port) == SP_OK){
+
+		const char* port_name = sp_get_port_name(port);
+
 		sp_set_baudrate(port, BAUD_RATE);
 		if (sp_open(port, SP_MODE_READ_WRITE) == SP_OK){
 			if (get_version_info()){
@@ -156,16 +159,16 @@ bool FlotillaDock::set_port(sp_port *new_port){
 			}
 			else
 			{
-				std::cout << "Failed to get version information..." << std::endl;
+				std::cout << "Flotilla_Dock.cpp: Failed to get version information..." << std::endl;
 			}
 		}
 		else
 		{
-			std::cout << "Failed to open port.." << std::endl;
+			std::cout << "Flotilla_Dock.cpp: Failed to open port " << port_name << std::endl;
 		}
 	}
 	else{
-		std::cout << "Failed to copy port!?..." << std::endl;
+		std::cout << "Flotilla_Dock.cpp: Failed to copy port!?..." << std::endl;
 	}
 
 	state = Disconnected;

@@ -139,8 +139,8 @@ public:
 	FlotillaModule module[MAX_CHANNELS];
 	std::thread thread_dock_tick;
 	std::string get_next_command(int channel);
-	std::vector<std::string> FlotillaDock::get_pending_commands(void);
-	std::vector<std::string> FlotillaDock::get_pending_events(void);
+	std::vector<std::string> get_pending_commands(void);
+	std::vector<std::string> get_pending_events(void);
 	bool has_pending_events();
 	std::string get_next_event();
 	void queue_module_event(int channel);

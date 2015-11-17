@@ -1,4 +1,4 @@
-#include "main.h"
+#include "Main.h"
 #include <signal.h>
 
 void cleanup(void){
@@ -186,7 +186,7 @@ void scan_for_host(struct sp_port* port) {
 
 				if (flotilla.dock[x].set_port(port)){
 					std::cout << "Main.cpp: Success! " << x << std::endl;
-					//flotilla.dock[x].start();
+					flotilla.dock[x].cmd_enumerate();
 				};
 
 				return;

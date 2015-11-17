@@ -151,7 +151,7 @@ bool FlotillaDock::set_port(sp_port *new_port){
 				printf("Host Name: %s\n",    name.c_str());
 				*/
 
-				cmd_enumerate();
+				//cmd_enumerate();
 
 				state = Connected;
 
@@ -288,7 +288,7 @@ bool FlotillaDock::get_version_info(){
 	information twice, but the dock is dropping/ignoring the second request?
 	*/
 
-	std::cout << std::endl << std::endl << "Sending Version Request..." << std::endl;
+	std::cout << std::endl << std::endl << "Flotilla_Dock.cpp: Sending Version Request..." << std::endl;
 
 	//sp_flush(port, SP_BUF_OUTPUT);
 	//sp_flush(port, SP_BUF_INPUT);

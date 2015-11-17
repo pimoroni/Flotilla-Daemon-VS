@@ -149,8 +149,8 @@ public:
 	bool set_port(sp_port* new_port);
 	void disconnect(void);
 	void queue_command(std::string cmd);
-private:
 	void cmd_enumerate(void);
+private:
 	std::mutex mutex;
 	std::queue <std::string> command_queue;
 	std::queue <std::string> event_queue; // Events which should be sent to clients

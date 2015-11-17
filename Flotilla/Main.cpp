@@ -11,11 +11,11 @@ void cleanup(void){
 
 	for (i = 0; i < MAX_DOCKS; i++){
 		//flotilla.dock[i].thread_dock_tick.join();
-		std::cout << "Disconnecting Dock " << i << std::endl;
+		std::cout << "Disconnecting Dock " << (i+1) << std::endl;
 		flotilla.dock[i].disconnect();
 		//std::cout << "Stopping Dock " << i << std::endl;
 		//flotilla.dock[i].stop();
-		std::cout << "Done... " << i << std::endl;
+		//std::cout << "Done... " << std::endl;
 	}
 }
 
@@ -91,7 +91,7 @@ void update_connected_docks() {
 		}
 
 		if (!found) {
-			std::cout << "Main.cpp: Dock Lost" << std::endl;
+			std::cout << "Dock " << (x+1) << " Disconnected" << std::endl;
 			flotilla.dock[x].disconnect();
 		}
 	}
@@ -115,6 +115,8 @@ void worker_dock_scan(void) {
 	return;
 }
 
+//#define DEBUG_SCAN_FOR_HOST
+
 void scan_for_host(struct sp_port* port) {
 	int x;
 
@@ -126,24 +128,32 @@ void scan_for_host(struct sp_port* port) {
 		return;
 	}
 
+#ifdef DEBUG_SCAN_FOR_HOST
 	std::cout << "Main.cpp: Checking port: " << port_name << " : " << port_desc << std::endl;
+#endif
 
 	if(sp_get_port_usb_vid_pid(port, &usb_vid, &usb_pid) != SP_OK){
+#ifdef DEBUG_SCAN_FOR_HOST
         std::cout << "Main.cpp: Could not get VID/PID" << std::endl;
+#endif
         return;
     }
 	
     if (usb_vid != VID || usb_pid != PID) {
 		return;
 	}
-    
+
+#ifdef DEBUG_SCAN_FOR_HOST
     std::cout << "Main.cpp: Got details VID: " << usb_vid << " PID: " << usb_pid << std::endl;
+#endif
 
 	for (x = 0; x < MAX_DOCKS; x++) {
 		if (flotilla.dock[x].state != Disconnected) {
 			const char* existing_port_name = sp_get_port_name(flotilla.dock[x].port);
 			if (strcmp(port_name, existing_port_name) == 0) {
+#ifdef DEBUG_SCAN_FOR_HOST
 				std::cout << "Main.cpp: Found existing dock entry for " << port_name << std::endl;
+#endif
 				return;
 			}
 		}
@@ -157,9 +167,9 @@ void scan_for_host(struct sp_port* port) {
 
 	if (temp.set_port(port)){
 		temp.disconnect();
-
+#ifdef DEBUG_SCAN_FOR_HOST
 		std::cout << "Main.cpp: Successfully Identified Dock. Serial: " << temp.serial << std::endl;
-
+#endif
 		/*
 		printf("Host Version Info: %s\n", port_name);
 		printf("Host Version: %s\n", temp_version);
@@ -188,10 +198,14 @@ void scan_for_host(struct sp_port* port) {
 
 		for (x = 0; x < MAX_DOCKS; x++){
 			if (flotilla.dock[x].state == Disconnected){
+#ifdef DEBUG_SCAN_FOR_HOST
 				std::cout << "Main.cpp: Using Dock slot at index " << x << std::endl;
-
+#endif
 				if (flotilla.dock[x].set_port(port)){
+#ifdef DEBUG_SCAN_FOR_HOST
 					std::cout << "Main.cpp: Success! " << x << std::endl;
+#endif
+					std::cout << "Dock " << (x+1) << " Connected!" << std::endl;
 					flotilla.dock[x].cmd_enumerate();
 				};
 
@@ -385,19 +399,19 @@ void websocket_on_message(websocketpp::connection_hdl hdl, server::message_ptr m
 }
 
 void websocket_on_open(websocketpp::connection_hdl hdl) {
-	std::cout << "Connection Opened " << std::endl;
+	std::cout << "Connection Opened" << std::endl;
 	//clients.insert(std::pair<websocketpp::connection_hdl,FlotillaClient>(hdl,FlotillaClient()));
 	clients[hdl] = FlotillaClient();
 }
 
 void websocket_on_close(websocketpp::connection_hdl hdl) {
-	std::cout << "Connection Closed " << std::endl;
+	std::cout << "Connection Closed" << std::endl;
 
 	clients.erase(hdl);
 }
 
 void websocket_on_fail(websocketpp::connection_hdl hdl) {
-	std::cout << "Connection Failed " << std::endl;
+	std::cout << "Connection Failed" << std::endl;
 
 	clients.erase(hdl);
 }
@@ -472,7 +486,7 @@ int main(int argc, char *argv[])
 
 	std::cout << "Bye bye!" << std::endl;
 
-	std::this_thread::sleep_for(std::chrono::microseconds(2000000));
+	//std::this_thread::sleep_for(std::chrono::microseconds(2000000));
 
 	return 0;
 }

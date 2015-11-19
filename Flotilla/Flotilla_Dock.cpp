@@ -16,7 +16,6 @@ void FlotillaDock::queue_command(std::string command){
 
 void FlotillaDock::tick(){
 	if (state != Connected) return;
-	std::string update;
 	int channel_index;
 
 	mutex.lock();
@@ -30,6 +29,7 @@ void FlotillaDock::tick(){
 	for (channel_index = 0; channel_index < MAX_CHANNELS; channel_index++){
 		if (module[channel_index].state != ModuleConnected) continue;
 
+		std::string update;
 		if (module[channel_index].get_next_update(update)){
 
 			std::ostringstream stream;

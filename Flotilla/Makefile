@@ -1,6 +1,6 @@
 CC = g++-4.9
-#DEPS = ../../flotilla-daemon/lib/
-DEPS = ../../flotilla-dependencies/
+DEPS = ../../flotilla-daemon/lib/
+#DEPS = ../../flotilla-dependencies/
 LDFLAGS = -O2 -std=c++11 -I${DEPS}websocketpp/ -I${DEPS} -lserialport -lboost_system -lpthread
 CFLAGS = -O2 -c -std=c++11 -I${DEPS}websocketpp/
 

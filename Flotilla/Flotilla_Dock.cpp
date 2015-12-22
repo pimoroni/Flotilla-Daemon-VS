@@ -1,4 +1,5 @@
 #include "Flotilla.h"
+#include "Timestamp.h"
 
 FlotillaDock::FlotillaDock(void) {
 	state = Disconnected;
@@ -36,7 +37,7 @@ void FlotillaDock::tick(){
 			stream << "s " << channel_index << " " << update;
 			update = stream.str();
 
-			std::cout << "Sending to dock: " << update << std::endl;
+			//std::cout << GetTimestamp() << "Sending to dock: " << update << std::endl;
 
 			sp_blocking_write(port, update.c_str(), update.length(), 0);
 			sp_blocking_write(port, "\r", 1, 0);
@@ -53,7 +54,7 @@ void FlotillaDock::tick(){
 
 		switch (command.at(0)){
 		case '#':{
-			std::cout << "Dock: " << index << ", Debug: " << command.substr(2) << std::endl;
+			std::cout << GetTimestamp() << "Dock: " << index << ", Debug: " << command.substr(2) << std::endl;
 		} break;
 		case 'u':{
 
@@ -62,7 +63,7 @@ void FlotillaDock::tick(){
 			std::string data = command.substr(size + 4 + module[channel].name.length());
 
 			// Oh my! cout is messy and ugly and slow, there are good arguments for it, but I'm a big boy and can handle printf!
-			//std::cout << "Dock: " << index << ", Channel: " << channel << ", Name: " << module[channel].name << " Data: " << data << std::endl;
+			//std::cout << GetTimestamp() << "Dock: " << index << ", Channel: " << channel << ", Name: " << module[channel].name << " Data: " << data << std::endl;
 			//printf("Dock: %d, Channel: %d, Name: %s, Data: %s\n", index, channel, module[channel].name.c_str(), data.c_str());
 
 			module[channel].queue_command(data);
@@ -74,7 +75,7 @@ void FlotillaDock::tick(){
 
 			std::string name = command.substr(size + 3);
 
-			std::cout << "Dock " << index << ", Ch " << channel << " Lost Module: " << name << std::endl;
+			std::cout << GetTimestamp() << "Dock " << index << ", Ch " << channel << " Lost Module: " << name << std::endl;
 
 			module[channel].disconnect();
 			queue_module_event(channel);
@@ -86,7 +87,7 @@ void FlotillaDock::tick(){
 
 			std::string name = command.substr(size + 3);
 
-			std::cout << "Dock " << index << ", Ch " << channel << " New Module: " << name << std::endl;
+			std::cout << GetTimestamp() << "Dock " << index << ", Ch " << channel << " New Module: " << name << std::endl;
 
 			module[channel].connect(name);
 			queue_module_event(channel);
@@ -121,14 +122,14 @@ void FlotillaDock::disconnect(void){
 
 	sp_close(port);
 	sp_free_port(port);
-	std::cout << "Dock Disconnected, serial " << serial << std::endl;
+	std::cout << GetTimestamp() << "Dock Disconnected, serial " << serial << std::endl;
 }
 
 void FlotillaDock::cmd_enumerate(void){
 
 	std::this_thread::sleep_for(std::chrono::microseconds(100000));
 	sp_blocking_write(port, "e\r", 2, 0);
-	std::cout << "Enumerating Dock, serial " << serial << "..." << std::endl;
+	std::cout << GetTimestamp() << "Enumerating Dock, serial " << serial << "..." << std::endl;
 
 }
 
@@ -159,16 +160,16 @@ bool FlotillaDock::set_port(sp_port *new_port){
 			}
 			else
 			{
-				std::cout << "Flotilla_Dock.cpp: Failed to get version information..." << std::endl;
+				std::cout << GetTimestamp() << "Flotilla_Dock.cpp: Failed to get version information..." << std::endl;
 			}
 		}
 		else
 		{
-			std::cout << "Flotilla_Dock.cpp: Failed to open port " << port_name << std::endl;
+			std::cout << GetTimestamp() << "Flotilla_Dock.cpp: Failed to open port " << port_name << std::endl;
 		}
 	}
 	else{
-		std::cout << "Flotilla_Dock.cpp: Failed to copy port!?..." << std::endl;
+		std::cout << GetTimestamp() << "Flotilla_Dock.cpp: Failed to copy port!?..." << std::endl;
 	}
 
 	state = Disconnected;
@@ -288,7 +289,7 @@ bool FlotillaDock::get_version_info(){
 	information twice, but the dock is dropping/ignoring the second request?
 	*/
 
-	std::cout << std::endl << std::endl << "Flotilla_Dock.cpp: Sending Version Request..." << std::endl;
+	std::cout << GetTimestamp() << std::endl << std::endl << "Flotilla_Dock.cpp: Sending Version Request..." << std::endl;
 
 	//sp_flush(port, SP_BUF_OUTPUT);
 	//sp_flush(port, SP_BUF_INPUT);
@@ -306,7 +307,7 @@ bool FlotillaDock::get_version_info(){
 		std::string line = sp_readline(port);
 		std::string::size_type position;
 
-		std::cout << "Got " << line << std::endl;
+		std::cout << GetTimestamp() << "Got " << line << std::endl;
 
 		if (line.length() > 0 && line.at(0) == '#'){
 

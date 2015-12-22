@@ -1,4 +1,5 @@
 #include "Main.h"
+#include "Timestamp.h"
 
 void cleanup(void){
 	int i;
@@ -10,11 +11,11 @@ void cleanup(void){
 
 	for (i = 0; i < MAX_DOCKS; i++){
 		//flotilla.dock[i].thread_dock_tick.join();
-		std::cout << "Disconnecting Dock " << (i+1) << std::endl;
+		std::cout << GetTimestamp() << "Disconnecting Dock " << (i+1) << std::endl;
 		flotilla.dock[i].disconnect();
-		//std::cout << "Stopping Dock " << i << std::endl;
+		//std::cout << GetTimestamp() << "Stopping Dock " << i << std::endl;
 		//flotilla.dock[i].stop();
-		//std::cout << "Done... " << std::endl;
+		//std::cout << GetTimestamp() << "Done... " << std::endl;
 	}
 
 #if defined(__linux__) || defined(__APPLE__)
@@ -25,7 +26,7 @@ void cleanup(void){
 }
 
 void websocket_stop(void){
-	std::cout << "Stopping WebSocket server..." << std::endl;
+	std::cout << GetTimestamp() << "Stopping WebSocket server..." << std::endl;
 	websocket_server.stop_listening();
 
 	for (auto client : clients){
@@ -34,13 +35,13 @@ void websocket_stop(void){
 		try{
 			websocket_server.close(client.first, websocketpp::close::status::going_away, "Flotilla Server Shutting Down");
 		}catch(websocketpp::lib::error_code error_code){
-			std::cout << "Main.cpp: lib:error_code" << error_code << std::endl;
+			std::cout << GetTimestamp() << "Main.cpp: lib:error_code" << error_code << std::endl;
 		}
 	}
 }
 
 void sigint_handler(int sig_num){
-	//std::cout << "Exiting cleanly, please wait..." << std::endl;
+	//std::cout << GetTimestamp() << "Exiting cleanly, please wait..." << std::endl;
 	websocket_stop();
 	//exit(1);
 }
@@ -62,7 +63,7 @@ void update_connected_docks() {
 
 		sp_get_port_usb_vid_pid(port, &usb_vid, &usb_pid);
 
-		std::cout << "Checking serial port " << name << " " << desc << " " << usb_vid << ":" << usb_pid << std::endl;
+		std::cout << GetTimestamp() << "Checking serial port " << name << " " << desc << " " << usb_vid << ":" << usb_pid << std::endl;
 
 		y++;
 	}*/
@@ -73,7 +74,7 @@ void update_connected_docks() {
 			continue;
 		};
 
-		//std::cout << "Checking for dock " << flotilla.dock[x].name << std::endl;
+		//std::cout << GetTimestamp() << "Checking for dock " << flotilla.dock[x].name << std::endl;
 
 		const char* a = sp_get_port_name(flotilla.dock[x].port);
 		bool found = false;
@@ -85,10 +86,10 @@ void update_connected_docks() {
 
 			sp_get_port_usb_vid_pid(port, &usb_vid, &usb_pid);
 
-			//std::cout << "Checking serial port " << b << std::endl;
+			//std::cout << GetTimestamp() << "Checking serial port " << b << std::endl;
 
 			if (b != NULL && usb_vid == VID && usb_pid == PID && strcmp(a, b) == 0) {
-				//std::cout << "Found dock " << flotilla.dock[x].name << std::endl;
+				//std::cout << GetTimestamp() << "Found dock " << flotilla.dock[x].name << std::endl;
 				found = true;
 			}
 
@@ -96,7 +97,7 @@ void update_connected_docks() {
 		}
 
 		if (!found) {
-			std::cout << "Dock " << (x+1) << " Disconnected" << std::endl;
+			std::cout << GetTimestamp() << "Dock " << (x+1) << " Disconnected" << std::endl;
 			flotilla.dock[x].disconnect();
 		}
 	}
@@ -134,12 +135,12 @@ void scan_for_host(struct sp_port* port) {
 	}
 
 #ifdef DEBUG_SCAN_FOR_HOST
-	std::cout << "Main.cpp: Checking port: " << port_name << " : " << port_desc << std::endl;
+	std::cout << GetTimestamp() << "Main.cpp: Checking port: " << port_name << " : " << port_desc << std::endl;
 #endif
 
 	if(sp_get_port_usb_vid_pid(port, &usb_vid, &usb_pid) != SP_OK){
 #ifdef DEBUG_SCAN_FOR_HOST
-        std::cout << "Main.cpp: Could not get VID/PID" << std::endl;
+        std::cout << GetTimestamp() << "Main.cpp: Could not get VID/PID" << std::endl;
 #endif
         return;
     }
@@ -149,7 +150,7 @@ void scan_for_host(struct sp_port* port) {
 	}
 
 #ifdef DEBUG_SCAN_FOR_HOST
-    std::cout << "Main.cpp: Got details VID: " << usb_vid << " PID: " << usb_pid << std::endl;
+    std::cout << GetTimestamp() << "Main.cpp: Got details VID: " << usb_vid << " PID: " << usb_pid << std::endl;
 #endif
 
 	for (x = 0; x < MAX_DOCKS; x++) {
@@ -157,15 +158,15 @@ void scan_for_host(struct sp_port* port) {
 			const char* existing_port_name = sp_get_port_name(flotilla.dock[x].port);
 			if (strcmp(port_name, existing_port_name) == 0) {
 #ifdef DEBUG_SCAN_FOR_HOST
-				std::cout << "Main.cpp: Found existing dock entry for " << port_name << std::endl;
+				std::cout << GetTimestamp() << "Main.cpp: Found existing dock entry for " << port_name << std::endl;
 #endif
 				return;
 			}
 		}
 	}
 
-	//std::cout << "Found port: " << port_desc << ", Name: " << port_name << std::endl;
-	//std::cout << "PID: " << usb_pid << " VID: " << usb_vid << std::endl;
+	//std::cout << GetTimestamp() << "Found port: " << port_desc << ", Name: " << port_name << std::endl;
+	//std::cout << GetTimestamp() << "PID: " << usb_pid << " VID: " << usb_vid << std::endl;
 
 
 	FlotillaDock temp;
@@ -173,7 +174,7 @@ void scan_for_host(struct sp_port* port) {
 	if (temp.set_port(port)){
 		temp.disconnect();
 #ifdef DEBUG_SCAN_FOR_HOST
-		std::cout << "Main.cpp: Successfully Identified Dock. Serial: " << temp.serial << std::endl;
+		std::cout << GetTimestamp() << "Main.cpp: Successfully Identified Dock. Serial: " << temp.serial << std::endl;
 #endif
 		/*
 		printf("Host Version Info: %s\n", port_name);
@@ -186,12 +187,12 @@ void scan_for_host(struct sp_port* port) {
 		/*for (x = 0; x < MAX_DOCKS; x++){
 			if (flotilla.dock[x].serial.compare(temp.serial) == 0){
 
-				std::cout << "Found existing Dock with serial " << temp.serial << " at index " << x << std::endl;
+				std::cout << GetTimestamp() << "Found existing Dock with serial " << temp.serial << " at index " << x << std::endl;
 
 				if (flotilla.dock[x].state == Disconnected){
 
 					if (flotilla.dock[x].set_port(port)){
-						std::cout << "Success! " << x << std::endl;
+						std::cout << GetTimestamp() << "Success! " << x << std::endl;
 						//flotilla.dock[x].start();
 					};
 
@@ -204,13 +205,13 @@ void scan_for_host(struct sp_port* port) {
 		for (x = 0; x < MAX_DOCKS; x++){
 			if (flotilla.dock[x].state == Disconnected){
 #ifdef DEBUG_SCAN_FOR_HOST
-				std::cout << "Main.cpp: Using Dock slot at index " << x << std::endl;
+				std::cout << GetTimestamp() << "Main.cpp: Using Dock slot at index " << x << std::endl;
 #endif
 				if (flotilla.dock[x].set_port(port)){
 #ifdef DEBUG_SCAN_FOR_HOST
-					std::cout << "Main.cpp: Success! " << x << std::endl;
+					std::cout << GetTimestamp() << "Main.cpp: Success! " << x << std::endl;
 #endif
-					std::cout << "Dock " << (x+1) << " Connected!" << std::endl;
+					std::cout << GetTimestamp() << "Dock " << (x+1) << " Connected!" << std::endl;
 					flotilla.dock[x].cmd_enumerate();
 				};
 
@@ -228,7 +229,7 @@ void init_client(websocketpp::connection_hdl hdl, FlotillaClient client){
 
 		if (flotilla.dock[dock_idx].state != Connected) continue;
 
-		std::cout << "Main.cpp: Sending Ident: " << flotilla.dock[dock_idx].ident() << std::endl;
+		std::cout << GetTimestamp() << "Main.cpp: Sending Ident: " << flotilla.dock[dock_idx].ident() << std::endl;
 		websocket_server.send(hdl, flotilla.dock[dock_idx].ident(), websocketpp::frame::opcode::text);
 
 		for (channel_idx = 0; channel_idx < MAX_CHANNELS; channel_idx++){
@@ -237,7 +238,7 @@ void init_client(websocketpp::connection_hdl hdl, FlotillaClient client){
 
 			std::string event = flotilla.dock[dock_idx].module_event(channel_idx);
 
-			std::cout << "Main.cpp: Client Init: " << event << std::endl;
+			std::cout << GetTimestamp() << "Main.cpp: Client Init: " << event << std::endl;
 
 			websocket_server.send(hdl, event, websocketpp::frame::opcode::text);
 		}
@@ -249,13 +250,13 @@ void send_to_clients(std::string command){
 
 	if (websocket_server.stopped()) return;
 
-	//std::cout << "Sending to clients: " << command << std::endl;
+	//std::cout << GetTimestamp() << "Sending to clients: " << command << std::endl;
 
 	for (auto client : clients){
 
 		if (!client.second.ready) continue;
 
-		//std::cout << "Sending..." << std::endl;
+		//std::cout << GetTimestamp() << "Sending..." << std::endl;
 		websocket_server.send(client.first, command, websocketpp::frame::opcode::text);
 
 	}
@@ -280,7 +281,7 @@ void worker_update_clients(void){
 
 			if (flotilla.dock[dock_idx].state != Connected) continue;
 
-			//std::cout << "Dock Update: " << flotilla.dock[dock_idx].serial << std::endl;
+			//std::cout << GetTimestamp() << "Dock Update: " << flotilla.dock[dock_idx].serial << std::endl;
 
 			for (auto command : flotilla.dock[dock_idx].get_pending_commands()){
 				send_to_clients(command);
@@ -341,13 +342,13 @@ void websocket_on_message(websocketpp::connection_hdl hdl, server::message_ptr m
 	auto payload = msg->get_payload();
 
 	if (payload.compare("quit") == 0){
-		std::cout << "Quit Received" << std::endl;
+		std::cout << GetTimestamp() << "Quit Received" << std::endl;
 		websocket_stop();
 		return;
 	}
 
 	if (payload.compare("hello") == 0){
-		std::cout << "Client Saying Hello!" << std::endl;
+		std::cout << GetTimestamp() << "Client Saying Hello!" << std::endl;
 		init_client(hdl, client);
 		return;
 	}
@@ -355,14 +356,14 @@ void websocket_on_message(websocketpp::connection_hdl hdl, server::message_ptr m
 	if (payload.compare("ready") == 0){
 		client.ready = true;
 		client.connected = true;
-		std::cout << "Client Ready" << std::endl;
+		std::cout << GetTimestamp() << "Client Ready" << std::endl;
 		init_client(hdl, client);
 		return;
 	}
 
 	if (payload.compare("pause") == 0){
 		client.ready = false;
-		std::cout << "Client Paused" << std::endl;
+		std::cout << GetTimestamp() << "Client Paused" << std::endl;
 		return;
 	}
 
@@ -385,7 +386,7 @@ void websocket_on_message(websocketpp::connection_hdl hdl, server::message_ptr m
 
 			flotilla.dock[dock_index].module[channel_index].queue_update(data);
 
-			//std::cout << "Queued command for dock " << dock_index << ", channel " << channel_index << ": " << data << std::endl;
+			//std::cout << GetTimestamp() << "Queued command for dock " << dock_index << ", channel " << channel_index << ": " << data << std::endl;
 
 			return;
 		}
@@ -395,28 +396,28 @@ void websocket_on_message(websocketpp::connection_hdl hdl, server::message_ptr m
 			// All commmands addressed at a specific dock should be processed, so add them to a fifo
 			flotilla.dock[dock_index].queue_command(data);
 			
-			//std::cout << "Pushing " << data  << " to dock " << dock_index << std::endl;
+			//std::cout << GetTimestamp() << "Pushing " << data  << " to dock " << dock_index << std::endl;
 		}
 
 	}
 
-	std::cout << msg->get_payload() << std::endl;
+	std::cout << GetTimestamp() << msg->get_payload() << std::endl;
 }
 
 void websocket_on_open(websocketpp::connection_hdl hdl) {
-	std::cout << "Connection Opened" << std::endl;
+	std::cout << GetTimestamp() << "Connection Opened" << std::endl;
 	//clients.insert(std::pair<websocketpp::connection_hdl,FlotillaClient>(hdl,FlotillaClient()));
 	clients[hdl] = FlotillaClient();
 }
 
 void websocket_on_close(websocketpp::connection_hdl hdl) {
-	std::cout << "Connection Closed" << std::endl;
+	std::cout << GetTimestamp() << "Connection Closed" << std::endl;
 
 	clients.erase(hdl);
 }
 
 void websocket_on_fail(websocketpp::connection_hdl hdl) {
-	std::cout << "Connection Failed" << std::endl;
+	std::cout << GetTimestamp() << "Connection Failed" << std::endl;
 
 	clients.erase(hdl);
 }
@@ -427,10 +428,10 @@ bool CtrlHandler(DWORD fdwCtrlType){
 	case CTRL_C_EVENT:
 	case CTRL_CLOSE_EVENT:
 		websocket_stop();
-		std::cout << "Doing closey things..." << std::endl;
-		std::cout << "Does this stay open?..." << std::endl;
+		std::cout << GetTimestamp() << "Doing closey things..." << std::endl;
+		std::cout << GetTimestamp() << "Does this stay open?..." << std::endl;
 		while (!safe_to_exit){
-			std::cout << "Waiting..." << std::endl;
+			std::cout << GetTimestamp() << "Waiting..." << std::endl;
 			std::this_thread::sleep_for(std::chrono::microseconds(1000000));
 		};
 		return TRUE;
@@ -554,7 +555,7 @@ int main(int argc, char *argv[])
 	    store(parse_command_line(argc, argv, desc), vm);
 
 	    if (vm.count("help")) {  
-	        std::cout << desc << "\n";
+	        std::cout << GetTimestamp() << desc << "\n";
 	        return 0;
 	    }
 
@@ -578,8 +579,8 @@ int main(int argc, char *argv[])
 		pid_file_path = absolute(bp_pid_file).string();
 
 		if(be_verbose){
-			std::cout << "Using log file: " << log_file_path << std::endl;
-			std::cout << "Using pid file: " << pid_file_path << std::endl;
+			std::cout << GetTimestamp() << "Using log file: " << log_file_path << std::endl;
+			std::cout << GetTimestamp() << "Using pid file: " << pid_file_path << std::endl;
 		}
 #endif
 
@@ -614,17 +615,16 @@ int main(int argc, char *argv[])
 			pid_file.close();
 			pid_file.open (pid_file_path, std::ofstream::out | std::ofstream::trunc);
 			daemonize();
-
 			pid_file << ::getpid();
 
 			pid_file.close();
 		}
 		else
 		{
-			std::cout << "Unable to open pid file" << std::endl;
+			std::cout << GetTimestamp() << "Unable to open pid file" << std::endl;
 			return 1;
 		}
-		std::cout << "Flotilla Started with PID: " << ::getpid() << std::endl;
+		std::cout << GetTimestamp() << "Flotilla Started with PID: " << ::getpid() << std::endl;
 	}
 #endif
 
@@ -632,7 +632,7 @@ int main(int argc, char *argv[])
 	signal(SIGTERM, sigint_handler);
 
 	/*if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, TRUE)){
-		std::cout << "Could not register Ctrl handler" << std::endl;
+		std::cout << GetTimestamp() << "Could not register Ctrl handler" << std::endl;
 	}*/
 
 	thread_dock_scan = std::thread(worker_dock_scan);
@@ -649,22 +649,22 @@ int main(int argc, char *argv[])
 	websocket_server.set_open_handler(&websocket_on_open);
 	websocket_server.set_close_handler(&websocket_on_close);
 
-	std::cout << "Flotilla Ready To Set Sail..." << std::endl;
+	std::cout << GetTimestamp() << "Flotilla Ready To Set Sail..." << std::endl;
 
 	websocket_server.init_asio();
 	websocket_server.set_reuse_addr(FALSE);
 	websocket_server.listen(boost::asio::ip::tcp::v4(), flotilla_port);
 
-	std::cout << "Listening on port " << flotilla_port << std::endl;
+	std::cout << GetTimestamp() << "Listening on port " << flotilla_port << std::endl;
 
 	websocket_server.start_accept();
 	websocket_server.run();
 
-	std::cout << "Websocket Server Stopped, Cleaning Up..." << std::endl;
+	std::cout << GetTimestamp() << "Websocket Server Stopped, Cleaning Up..." << std::endl;
 
 	cleanup();
 
-	std::cout << "Bye bye!" << std::endl;
+	std::cout << GetTimestamp() << "Bye bye!" << std::endl;
 
 	//std::this_thread::sleep_for(std::chrono::microseconds(2000000));
 

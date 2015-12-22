@@ -11,6 +11,7 @@
 
 #include <boost/program_options/value_semantic.hpp>
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 
 #include "Flotilla.h"
 
@@ -21,8 +22,14 @@
 #define VID 0x16D0 //1003
 #define FLOTILLA_PORT 9395
 
+using namespace boost::program_options;
+using namespace boost::filesystem;
+
 std::string pid_file_path = "/var/run/flotilla.pid";
-bool should_daemonize = false;
+std::string log_file_path = "/var/log/flotilla.log";
+int flotilla_port = FLOTILLA_PORT;
+bool should_daemonize = true;
+bool be_verbose = false;
 
 std::thread thread_dock_scan;
 std::thread thread_update_clients;

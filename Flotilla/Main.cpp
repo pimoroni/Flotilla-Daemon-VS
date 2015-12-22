@@ -1,9 +1,5 @@
 #include "Main.h"
 
-using namespace boost::program_options;
-
-namespace opts = boost::program_options;
-
 void cleanup(void){
 	int i;
 	running = 0;
@@ -21,9 +17,11 @@ void cleanup(void){
 		//std::cout << "Done... " << std::endl;
 	}
 
+#if defined(__linux__) || defined(__APPLE__)
 	if( should_daemonize ){
 		std::remove(pid_file_path.c_str());
 	}
+#endif
 }
 
 void websocket_stop(void){
@@ -42,9 +40,9 @@ void websocket_stop(void){
 }
 
 void sigint_handler(int sig_num){
-//std::cout << "Exiting cleanly, please wait..." << std::endl;
-websocket_stop();
-//exit(1);
+	//std::cout << "Exiting cleanly, please wait..." << std::endl;
+	websocket_stop();
+	//exit(1);
 }
 
 void update_connected_docks() {
@@ -445,18 +443,18 @@ bool CtrlHandler(DWORD fdwCtrlType){
 int daemonize(){
     if (pid_t pid = fork())
     {
-      if (pid > 0)
-      {
-        // We're in the parent process and need to exit.
-        //
-        // should also precede the second fork().
-        exit(0);
-      }
-      else
-      {
-        syslog(LOG_ERR | LOG_USER, "First fork failed: %m");
-        exit(1);
-      }
+		if (pid > 0)
+		{
+			// We're in the parent process and need to exit.
+			//
+			// should also precede the second fork().
+			exit(0);
+		}
+		else
+		{
+			syslog(LOG_ERR | LOG_USER, "First fork failed: %m");
+			exit(1);
+		}
     }
 
     // Make the process a new session leader. This detaches it from the
@@ -479,15 +477,15 @@ int daemonize(){
     //{
     pid_t pid;
     if((pid = fork())){
-      if (pid > 0)
-      {
-        exit(0);
-      }
-      else
-      {
-        syslog(LOG_ERR | LOG_USER, "Second fork failed: %m");
-      	exit(1);
-      }
+		if (pid > 0)
+		{
+			exit(0);
+		}
+		else
+		{
+			syslog(LOG_ERR | LOG_USER, "Second fork failed: %m");
+			exit(1);
+		}
     }
 
     // Close the standard streams. This decouples the daemon from the terminal
@@ -499,18 +497,18 @@ int daemonize(){
     // We don't want the daemon to have any standard input.
     if (open("/dev/null", O_RDONLY) < 0)
     {
-      syslog(LOG_ERR | LOG_USER, "Unable to open /dev/null: %m");
-      exit(1);
+		syslog(LOG_ERR | LOG_USER, "Unable to open /dev/null: %m");
+		exit(1);
     }
 
     // Send standard output to a log file.
-    const char* output = "/var/log/flotilla.log";
+    //const char* output = "/var/log/flotilla.log";
     const int flags = O_WRONLY | O_CREAT | O_APPEND;
     const mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
-    if (open(output, flags, mode) < 0)
+    if (open(log_file_path.c_str(), flags, mode) < 0)
     {
-      syslog(LOG_ERR | LOG_USER, "Unable to open output file %s: %m", output);
-      exit(1);
+		syslog(LOG_ERR | LOG_USER, "Unable to open output file %s: %m", log_file_path.c_str());
+		exit(1);
     }
 
     // Also send standard error to the same log file.
@@ -528,6 +526,8 @@ int main(int argc, char *argv[])
 {
 	int i;
 	running = 1;
+
+
 	//safe_to_exit = 0;
 
 	/*struct sigaction sigIntHandler;
@@ -541,7 +541,14 @@ int main(int argc, char *argv[])
 
 	    desc.add_options()
 	        ("help,h", "Print this usage message")
-	    	("daemon,d", bool_switch(&should_daemonize), "Daemonize Flotilla process");
+	        ("port,p", value<int>(&flotilla_port), "Specify an alternate port")
+#if defined(__linux__) || defined(__APPLE__)
+	        ("pid-file", value<std::string>(&pid_file_path), "Specify an alternate pid file path")
+	        ("log-file", value<std::string>(&log_file_path), "Specify an alternate log file path")
+	    	("no-daemon,d", bool_switch(), "Prevent Flotilla from running as a daemon")
+	    	("verbose,v", bool_switch(&be_verbose), "Start Flotilla verbosely")
+	    ;
+#endif
 
 		variables_map vm;
 	    store(parse_command_line(argc, argv, desc), vm);
@@ -551,13 +558,47 @@ int main(int argc, char *argv[])
 	        return 0;
 	    }
 
-	    should_daemonize = vm["daemon"].as<bool>();
+	    if (vm.count("pid-file")) {
+	    	pid_file_path = vm["pid-file"].as<std::string>();
+	    }
+
+	    if (vm.count("log-file")) {
+	    	log_file_path = vm["log-file"].as<std::string>();
+	    }
+
+	    if (vm.count("verbose")) {
+	    	be_verbose = vm["verbose"].as<bool>();
+	    }
+
+#if defined(__linux__) || defined(__APPLE__)
+		path bp_log_file(log_file_path);
+		path bp_pid_file(pid_file_path);
+
+		log_file_path = absolute(bp_log_file).string();
+		pid_file_path = absolute(bp_pid_file).string();
+
+		if(be_verbose){
+			std::cout << "Using log file: " << log_file_path << std::endl;
+			std::cout << "Using pid file: " << pid_file_path << std::endl;
+		}
+#endif
+
+#if defined(__linux__) || defined(__APPLE__)
+	    if (vm.count("no-daemon")) {
+	    	should_daemonize = !vm["no-daemon"].as<bool>();
+		}
+#endif
+
+	    if (vm.count("port")) { 
+	    	flotilla_port = vm["port"].as<int>();
+		}
 	}
     catch(std::exception& e) {
         std::cerr << e.what() << std::endl;
         return 1;
     }
 
+#if defined(__linux__) || defined(__APPLE__)
 	if( should_daemonize ){
 
 		std::ofstream pid_file;
@@ -585,6 +626,7 @@ int main(int argc, char *argv[])
 		}
 		std::cout << "Flotilla Started with PID: " << ::getpid() << std::endl;
 	}
+#endif
 
 	signal(SIGINT, sigint_handler);
 	signal(SIGTERM, sigint_handler);
@@ -611,9 +653,9 @@ int main(int argc, char *argv[])
 
 	websocket_server.init_asio();
 	websocket_server.set_reuse_addr(FALSE);
-	websocket_server.listen(boost::asio::ip::tcp::v4(), FLOTILLA_PORT);
+	websocket_server.listen(boost::asio::ip::tcp::v4(), flotilla_port);
 
-	std::cout << "Listening on port " << FLOTILLA_PORT << std::endl;
+	std::cout << "Listening on port " << flotilla_port << std::endl;
 
 	websocket_server.start_accept();
 	websocket_server.run();

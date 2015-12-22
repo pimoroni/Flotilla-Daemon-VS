@@ -289,7 +289,7 @@ bool FlotillaDock::get_version_info(){
 	information twice, but the dock is dropping/ignoring the second request?
 	*/
 
-	std::cout << GetTimestamp() << std::endl << std::endl << "Flotilla_Dock.cpp: Sending Version Request..." << std::endl;
+	//std::cout << GetTimestamp() << std::endl << std::endl << "Flotilla_Dock.cpp: Sending Version Request..." << std::endl;
 
 	//sp_flush(port, SP_BUF_OUTPUT);
 	//sp_flush(port, SP_BUF_INPUT);

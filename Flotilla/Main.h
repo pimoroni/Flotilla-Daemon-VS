@@ -1,9 +1,16 @@
 #include <thread>
 #include <libserialport.h>
+#include <signal.h>
+#include <syslog.h>
 #include <iostream>
+#include <fstream>
+#include <cstdio>
 #include <map>
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
+
+#include <boost/program_options/value_semantic.hpp>
+#include <boost/program_options.hpp>
 
 #include "Flotilla.h"
 
@@ -13,6 +20,9 @@
 #define PID 0x08C3 //9220
 #define VID 0x16D0 //1003
 #define FLOTILLA_PORT 9395
+
+std::string pid_file_path = "/var/run/flotilla.pid";
+bool should_daemonize = false;
 
 std::thread thread_dock_scan;
 std::thread thread_update_clients;

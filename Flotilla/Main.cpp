@@ -1,8 +1,8 @@
 #include "Main.h"
-#include <signal.h>
-#include <syslog.h>
-#include <iostream>
-#include <fstream>
+
+using namespace boost::program_options;
+
+namespace opts = boost::program_options;
 
 void cleanup(void){
 	int i;
@@ -19,6 +19,10 @@ void cleanup(void){
 		//std::cout << "Stopping Dock " << i << std::endl;
 		//flotilla.dock[i].stop();
 		//std::cout << "Done... " << std::endl;
+	}
+
+	if( should_daemonize ){
+		std::remove(pid_file_path.c_str());
 	}
 }
 
@@ -474,7 +478,7 @@ int daemonize(){
     //if (pid_t pid = fork())
     //{
     pid_t pid;
-    if(pid = fork()){
+    if((pid = fork())){
       if (pid > 0)
       {
         exit(0);
@@ -532,20 +536,55 @@ int main(int argc, char *argv[])
 	sig_int_handler.sa_flags = 0;
 	sigaction(SIGINT, &sigIntHandler, NULL);*/
 
-	daemonize();
+	try {
+		options_description desc("Flotilla Server\nAvailable options");
 
-	std::ofstream pid_file;
-	pid_file.open ("/var/run/flotilla.pid", std::ios::out);
-	if(pid_file.is_open()){
-		pid_file << ::getpid();
-		pid_file.close();
-	}
-	else
-	{
-		std::cout << "Unable to open pid file" << std::endl;
-	}
+	    desc.add_options()
+	        ("help,h", "Print this usage message")
+	    	("daemon,d", bool_switch(&should_daemonize), "Daemonize Flotilla process");
 
-	std::cout << "Flotilla Started with PID: " << ::getpid() << std::endl;
+		variables_map vm;
+	    store(parse_command_line(argc, argv, desc), vm);
+
+	    if (vm.count("help")) {  
+	        std::cout << desc << "\n";
+	        return 0;
+	    }
+
+	    should_daemonize = vm["daemon"].as<bool>();
+	}
+    catch(std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
+
+	if( should_daemonize ){
+
+		std::ofstream pid_file;
+		pid_file.open (pid_file_path, std::ofstream::out | std::ofstream::trunc);
+		if(pid_file.is_open()){
+			pid_file << ::getpid();
+
+			if(pid_file.bad()){
+				std::cerr << "Unable to write to pid file" << std::endl;
+				return 1;
+			}
+			
+			pid_file.close();
+			pid_file.open (pid_file_path, std::ofstream::out | std::ofstream::trunc);
+			daemonize();
+
+			pid_file << ::getpid();
+
+			pid_file.close();
+		}
+		else
+		{
+			std::cout << "Unable to open pid file" << std::endl;
+			return 1;
+		}
+		std::cout << "Flotilla Started with PID: " << ::getpid() << std::endl;
+	}
 
 	signal(SIGINT, sigint_handler);
 	signal(SIGTERM, sigint_handler);

@@ -3,7 +3,7 @@
 bool sp_wait_for(struct sp_port* port, std::string wait_for){
 
 
-	printf("\n\nWaiting for \"%s\"...\n", wait_for.c_str());
+	//printf("\n\nWaiting for \"%s\"...\n", wait_for.c_str());
 
 	while (sp_output_waiting(port) > 0);
 

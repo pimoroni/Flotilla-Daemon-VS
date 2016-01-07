@@ -54,7 +54,7 @@ This will probably change to some method of subscribing to a particular dock
 #define MAX_DOCKS    8
 #define MAX_CHANNELS 8
 
-#define BAUD_RATE    9600
+#define BAUD_RATE    115200
 
 #ifndef TRUE
 #define TRUE  (1==1)

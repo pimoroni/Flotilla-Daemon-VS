@@ -34,7 +34,7 @@ void FlotillaDock::tick(){
 		if (module[channel_index].get_next_update(update)){
 
 			std::ostringstream stream;
-			stream << "s " << channel_index << " " << update;
+			stream << "s " << (channel_index + 1) << " " << update;
 			update = stream.str();
 
 			//std::cout << GetTimestamp() << "Sending to dock: " << update << std::endl;
@@ -58,39 +58,50 @@ void FlotillaDock::tick(){
 		} break;
 		case 'u':{
 
-			int channel = std::stoi(command.substr(2), &size);
+			int channel = std::stoi(command.substr(2), &size) - 1;
 
-			std::string data = command.substr(size + 4 + module[channel].name.length());
+			if (channel < MAX_CHANNELS) {
 
-			// Oh my! cout is messy and ugly and slow, there are good arguments for it, but I'm a big boy and can handle printf!
-			//std::cout << GetTimestamp() << "Dock: " << index << ", Channel: " << channel << ", Name: " << module[channel].name << " Data: " << data << std::endl;
-			//printf("Dock: %d, Channel: %d, Name: %s, Data: %s\n", index, channel, module[channel].name.c_str(), data.c_str());
+				std::string data = command.substr(size + 4 + module[channel].name.length());
 
-			module[channel].queue_command(data);
+				// Oh my! cout is messy and ugly and slow, there are good arguments for it, but I'm a big boy and can handle printf!
+				//std::cout << GetTimestamp() << "Dock: " << index << ", Channel: " << channel << ", Name: " << module[channel].name << " Data: " << data << std::endl;
+				//printf("Dock: %d, Channel: %d, Name: %s, Data: %s\n", index, channel, module[channel].name.c_str(), data.c_str());
+
+				module[channel].queue_command(data);
+			}
 
 		} break;
 		case 'd':{ // Module Disconnect
 
-			int channel = std::stoi(command.substr(2), &size);
+			int channel = std::stoi(command.substr(2), &size) - 1;
+			
+			if (channel < MAX_CHANNELS) {
 
-			std::string name = command.substr(size + 3);
+				std::string name = command.substr(size + 3);
 
-			std::cout << GetTimestamp() << "Dock " << index << ", Ch " << channel << " Lost: " << name << std::endl;
+				std::cout << GetTimestamp() << "Dock " << index << ", Ch " << channel << " Lost: " << name << std::endl;
 
-			module[channel].disconnect();
-			queue_module_event(channel);
+				module[channel].disconnect();
+				queue_module_event(channel);
+
+			}
 
 		} break;
 		case 'c':{ // Module Connect
 
-			int channel = std::stoi(command.substr(2), &size);
+			int channel = std::stoi(command.substr(2), &size) - 1;
 
-			std::string name = command.substr(size + 3);
+			if (channel < MAX_CHANNELS) {
 
-			std::cout << GetTimestamp() << "Dock " << index << ", Ch " << channel << " Found: " << name << std::endl;
+				std::string name = command.substr(size + 3);
 
-			module[channel].connect(name);
-			queue_module_event(channel);
+				std::cout << GetTimestamp() << "Dock " << index << ", Ch " << channel << " Found: " << name << std::endl;
+
+				module[channel].connect(name);
+				queue_module_event(channel);
+
+			}
 
 		} break;
 		}

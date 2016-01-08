@@ -257,7 +257,12 @@ void send_to_clients(std::string command){
 		if (!client.second.ready) continue;
 
 		//std::cout << GetTimestamp() << "Sending..." << std::endl;
-		websocket_server.send(client.first, command, websocketpp::frame::opcode::text);
+		try {
+			websocket_server.send(client.first, command, websocketpp::frame::opcode::text);
+		}
+		catch (websocketpp::exception e) {
+			std::cout << GetTimestamp() << "Main.cpp: lib:error_code" << e.m_msg << std::endl;
+		}
 
 	}
 }
@@ -380,7 +385,7 @@ void websocket_on_message(websocketpp::connection_hdl hdl, server::message_ptr m
 
 			data = data.substr(2); // remove "s "
 
-			int channel_index = std::stoi(data, &channel_offset);
+			int channel_index = std::stoi(data, &channel_offset) - 1;
 
 			data = data.substr(channel_offset + 1);
 

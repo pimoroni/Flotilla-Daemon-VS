@@ -447,7 +447,7 @@ bool CtrlHandler(DWORD fdwCtrlType){
 */
 
 #if defined(__linux__) || defined(__APPLE__)
-int daemonize(){
+void daemonize(){
     if (pid_t pid = fork())
     {
 		if (pid > 0)
@@ -661,6 +661,9 @@ int main(int argc, char *argv[])
 	websocket_server.init_asio();
 	websocket_server.set_reuse_addr(FALSE);
 	websocket_server.listen(boost::asio::ip::tcp::v4(), flotilla_port);
+
+
+	std::cout << GetTimestamp() << "Baud rate " << BAUD_RATE << std::endl;
 
 	std::cout << GetTimestamp() << "Listening on port " << flotilla_port << std::endl;
 

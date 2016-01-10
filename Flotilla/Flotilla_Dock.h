@@ -5,6 +5,7 @@
 #include <mutex>
 #include <string>
 #include <queue>
+#include <thread>
 
 #include "Config.h"
 #include "Flotilla_Module.h"

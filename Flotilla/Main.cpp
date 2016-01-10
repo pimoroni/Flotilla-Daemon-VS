@@ -1,5 +1,6 @@
 #include "Main.h"
 #include "Timestamp.h"
+#include "Discovery.h"
 
 void cleanup(void){
 	int i;

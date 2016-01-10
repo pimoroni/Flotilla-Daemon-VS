@@ -146,6 +146,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Discovery.cpp" />
     <ClCompile Include="Flotilla.cpp" />
     <ClCompile Include="Flotilla_Client.cpp" />
     <ClCompile Include="Flotilla_Dock.cpp" />
@@ -154,6 +155,7 @@
     <ClCompile Include="Timestamp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Discovery.h" />
     <ClInclude Include="Flotilla.h" />
     <ClInclude Include="libserialport.h" />
     <ClInclude Include="Main.h" />

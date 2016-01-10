@@ -61,6 +61,7 @@ void for_each_port(void(*handle_port)(struct sp_port* port));
 
 class Flotilla {
 public:
+	Flotilla();
 	FlotillaDock dock[MAX_DOCKS];
 	std::map<websocketpp::connection_hdl, FlotillaClient, std::owner_less<websocketpp::connection_hdl>> clients;
 	FlotillaClient& get_client_from_hdl(websocketpp::connection_hdl hdl);
@@ -68,6 +69,8 @@ public:
 	void stop_server();
 	void start_server();
 	void send_to_clients(std::string command);
+	void update_docks();
+	void update_clients();
 
 	websocketpp::server<websocketpp::config::asio> websocket_server;
 	void init_client(websocketpp::connection_hdl hdl, FlotillaClient client);

@@ -90,7 +90,15 @@ void update_connected_docks() {
 
 /* Scan for new docks */
 void worker_dock_scan(void) {
+	static int seconds;
 	while (running) {
+		if (seconds == 0) {
+
+		}
+		seconds++;
+		if (seconds >= 3600) {
+			seconds = 0;
+		}
 		update_connected_docks();
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
@@ -145,7 +153,6 @@ void scan_for_host(struct sp_port* port) {
 	//std::cout << GetTimestamp() << "Found port: " << port_desc << ", Name: " << port_name << std::endl;
 	//std::cout << GetTimestamp() << "PID: " << usb_pid << " VID: " << usb_vid << std::endl;
 
-
 	FlotillaDock temp;
 
 	if (temp.set_port(port)){
@@ -182,33 +189,16 @@ void worker_update_clients(void){
 
 		auto start = std::chrono::high_resolution_clock::now();
 
-		int dock_idx;
-
-		for (dock_idx = 0; dock_idx < MAX_DOCKS; dock_idx++){
-
-			for (auto event : flotilla.dock[dock_idx].get_pending_events()){
-				flotilla.send_to_clients(event);
-			}
-
-			if (flotilla.dock[dock_idx].state != Connected) continue;
-
-			//std::cout << GetTimestamp() << "Dock Update: " << flotilla.dock[dock_idx].serial << std::endl;
-
-			for (auto command : flotilla.dock[dock_idx].get_pending_commands()){
-				flotilla.send_to_clients(command);
-			}
-
-		}
+		flotilla.update_clients();
 
 		auto elapsed = std::chrono::high_resolution_clock::now() - start;
 
 		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
 
-		std::this_thread::sleep_for(std::chrono::microseconds(10000 - microseconds));
+		// This should approximately match the interval of rockpool.updateLoop
+		std::this_thread::sleep_for(std::chrono::microseconds(50000 - microseconds));
 	}
-
 	return;
-
 }
 
 void worker_update_docks(void){
@@ -217,12 +207,7 @@ void worker_update_docks(void){
 
 		auto start = std::chrono::high_resolution_clock::now();
 
-		int dock_idx;
-		for (dock_idx = 0; dock_idx < MAX_DOCKS; dock_idx++){
-			if (flotilla.dock[dock_idx].state != Connected) continue;
-
-			flotilla.dock[dock_idx].tick();
-		}
+		flotilla.update_docks();
 
 		auto elapsed = std::chrono::high_resolution_clock::now() - start;
 
@@ -231,6 +216,7 @@ void worker_update_docks(void){
 		//std::this_thread::sleep_for(std::chrono::microseconds(100000 - microseconds));
 		std::this_thread::sleep_for(std::chrono::microseconds(1000 - microseconds));
 	}
+	return;
 }
 
 
@@ -320,7 +306,6 @@ void daemonize(){
 
 int main(int argc, char *argv[])
 {
-	int i;
 	running = 1;
 
 	discover_ipv4();
@@ -422,10 +407,6 @@ int main(int argc, char *argv[])
 	thread_dock_scan = std::thread(worker_dock_scan);
 	thread_update_clients = std::thread(worker_update_clients);
 	thread_update_docks = std::thread(worker_update_docks);
-
-	for (i = 0; i < MAX_DOCKS; i++){
-		flotilla.dock[i].index = i;
-	}
 
 	std::cout << GetTimestamp() << "Flotilla Ready To Set Sail..." << std::endl;
 

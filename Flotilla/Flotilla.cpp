@@ -5,7 +5,37 @@ using websocketpp::lib::bind;
 using websocketpp::lib::placeholders::_1;
 using websocketpp::lib::placeholders::_2;
 
-//Flotilla::Flotilla() {}
+Flotilla::Flotilla() {
+	for (auto i = 0; i < MAX_DOCKS; i++) {
+		dock[i].index = i;
+	}
+}
+
+void Flotilla::update_clients() {
+	for (auto dock_idx = 0; dock_idx < MAX_DOCKS; dock_idx++) {
+
+		for (auto event : dock[dock_idx].get_pending_events()) {
+			send_to_clients(event);
+		}
+
+		if (dock[dock_idx].state != Connected) continue;
+
+		//std::cout << GetTimestamp() << "Dock Update: " << flotilla.dock[dock_idx].serial << std::endl;
+
+		for (auto command : dock[dock_idx].get_pending_commands()) {
+			send_to_clients(command);
+		}
+
+	}
+}
+
+void Flotilla::update_docks() {
+	for (auto dock_idx = 0; dock_idx < MAX_DOCKS; dock_idx++) {
+		if (dock[dock_idx].state != Connected) continue;
+		dock[dock_idx].tick();
+	}
+}
+
 FlotillaClient& Flotilla::get_client_from_hdl(websocketpp::connection_hdl hdl) {
 	auto client = clients.find(hdl);
 

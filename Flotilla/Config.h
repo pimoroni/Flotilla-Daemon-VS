@@ -2,10 +2,10 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
-#define MAX_DOCKS    8
+#define MAX_DOCKS 8
 #define MAX_CHANNELS 8
 
-#define BAUD_RATE    115200
+#define BAUD_RATE 115200
 
 #define PID 0x08C3 //9220
 #define VID 0x16D0 //1003
@@ -13,6 +13,11 @@
 
 #define PID_FILE_PATH "/var/run/flotilla.pid"
 #define LOG_FILE_PATH "/var/log/flotilla.log"
+
+#define NOTIFY_REQUEST_HOST "10.0.1.24"
+#define NOTIFY_REQUEST_PORT "8000"
+#define NOTIFY_INTERVAL 300  // 3600 = 1hr
+#define NOTIFY_ENABLE
 
 #ifndef TRUE
 #define TRUE  (1==1)

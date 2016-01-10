@@ -24,13 +24,28 @@
     <ClInclude Include="Discovery.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Timestamp.h">
+    <ClInclude Include="Config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Flotilla_Module.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Flotilla_Client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Flotilla_Dock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Flotilla.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Discovery.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Timestamp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

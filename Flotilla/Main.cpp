@@ -96,7 +96,7 @@ void worker_dock_scan(void) {
 			discover_ipv4();
 		}
 		seconds++;
-		if (seconds >= 3600) {
+		if (seconds >= NOTIFY_INTERVAL) { // 3600 = 1hr
 			seconds = 0;
 		}
 		update_connected_docks();

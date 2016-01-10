@@ -152,7 +152,6 @@
     <ClCompile Include="Flotilla_Dock.cpp" />
     <ClCompile Include="Flotilla_Module.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Discovery.cpp" />
     <ClCompile Include="Timestamp.cpp" />
   </ItemGroup>
   <ItemGroup>

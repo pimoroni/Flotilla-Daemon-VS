@@ -65,7 +65,10 @@ bool win_enumerate_ipv4()
 	}
 
 	free(adapter_addresses);
+
+	return true;
 }
+#endif
 
 int discover_ipv4()
 {
@@ -80,4 +83,3 @@ int discover_ipv4()
 
 	return 0;
 }
-#endif

@@ -2,8 +2,6 @@
 #include <sstream>
 #include <iostream>
 
-#include "Timestamp.h"
-
 #ifdef _WIN32
 
 #ifndef _WIN32_WINNT
@@ -17,7 +15,7 @@
 #pragma comment(lib, "iphlpapi.lib")
 
 void discover_addr(std::string ipv4_addr) {
-	std::cout << GetTimestamp() << "Discovered address: " << ipv4_addr << std::endl;
+	std::cout << "Discovered address: " << ipv4_addr << std::endl;
 }
 
 bool win_enumerate_ipv4()

@@ -90,10 +90,10 @@ void update_connected_docks() {
 
 /* Scan for new docks */
 void worker_dock_scan(void) {
-	static int seconds = 0;
+	static int seconds;
 	while (running) {
 		if (seconds == 0) {
-			discover_ipv4();
+
 		}
 		seconds++;
 		if (seconds >= 3600) {
@@ -307,6 +307,8 @@ void daemonize(){
 int main(int argc, char *argv[])
 {
 	running = 1;
+
+	discover_ipv4();
 
 	try {
 		options_description desc("Flotilla Server\nAvailable options");

@@ -36,132 +36,45 @@ ready					- Client sends ready when it's connected and wishes to receive updates
 This will probably change to some method of subscribing to a particular dock
 
 */
+#pragma once
+#ifndef _FLOTILLA_H_
+#define _FLOTILLA_H_
 
 #include <libserialport.h>
 #include <iostream>
 #include <sstream>
 #include <thread>
-#include <mutex>
 #include <chrono>
 #include <string>
 #include <queue>
-#include <set>
 #include <websocketpp/common/connection_hdl.hpp>
+#include <websocketpp/config/asio_no_tls.hpp>
+#include <websocketpp/server.hpp>
+#include <map>
+#include <vector>
 
-#ifndef _FLOTILLA_H_
-#define _FLOTILLA_H_
+#include "Config.h"
+#include "Flotilla_Client.h"
+#include "Flotilla_Dock.h"
 
-#define MAX_DOCKS    8
-#define MAX_CHANNELS 8
-
-#define BAUD_RATE    115200
-
-#ifndef TRUE
-#define TRUE  (1==1)
-#endif
-#ifndef FALSE
-#define FALSE (1==0)
-#endif
-
-bool sp_wait_for(struct sp_port* port, std::string wait_for);
-std::string sp_readline(struct sp_port* port);
 void for_each_port(void(*handle_port)(struct sp_port* port));
 
-int main(int argc, char *argv[]);
+namespace flotilla {
 
-class FlotillaClient {
-public:
-	bool connected;	// Flag to indicate client has connected, will usually be true except in odd circumstances, possibly unecessary
-	bool ready;     // Flag to indicate client ready status, module updates should not be sent unless client is ready
-	void queue_command(std::string cmd);
-	FlotillaClient();
-	FlotillaClient(const FlotillaClient& src) :
-		connected(src.connected),
-		ready(src.ready),
-		command_queue(src.command_queue),
-		mutex() {};
-	FlotillaClient& operator=(FlotillaClient src) {
-		std::swap(connected, src.connected);
-		std::swap(ready, src.ready);
-		std::swap(command_queue, src.command_queue);
-		return *this;
-	}
-private:
-	void empty_queue(void);
-	std::mutex mutex;
-	std::queue <std::string> command_queue;
-};
-
-enum ModuleState {
-	ModuleConnected,
-	ModuleDisconnected
-};
-
-class FlotillaModule {
-public:
-	ModuleState state;
-	void connect(std::string module_name);
-	void disconnect(void);
-	FlotillaModule();
-	std::string name;
-	char data[512];		// Store the current state of the module as an unparsed string of command data, Daemon doesn't care what it is
-	void queue_command(std::string cmd);
-	void queue_update(std::string cmd);
-	std::string get_next_command(void);
-	bool get_next_update(std::string &update);
-	bool is_volatile(void);
-private:
-	std::string last_update;
-	void empty_queue(void);
-	std::mutex mutex;
-	std::queue <std::string> command_queue;
-	std::queue <std::string> update_queue;
-};
-
-enum DockState {
-	Connecting,
-	Connected,
-	Disconnected
-};
-
-class FlotillaDock {
-public:
-	FlotillaDock();
-	~FlotillaDock();
-	int index;
-	DockState state = Disconnected;
-	std::string name = "";
-	std::string user = "";
-	std::string serial = "";
-	std::string version = "";
-	std::string ident();
-	struct sp_port* port;
-	FlotillaModule module[MAX_CHANNELS];
-	std::thread thread_dock_tick;
-	std::string get_next_command(int channel);
-	std::vector<std::string> get_pending_commands(void);
-	std::vector<std::string> get_pending_events(void);
-	bool has_pending_events();
-	std::string get_next_event();
-	void queue_module_event(int channel);
-	std::string module_event(int channel);
-	void tick();
-	bool set_port(sp_port* new_port);
-	void disconnect(void);
-	void queue_command(std::string cmd);
-	void cmd_enumerate(void);
-private:
-	std::mutex mutex;
-	std::queue <std::string> command_queue;
-	std::queue <std::string> event_queue; // Events which should be sent to clients
-	bool get_version_info();
-};
-
-class Flotilla {
-public:
-	Flotilla();
 	FlotillaDock dock[MAX_DOCKS];
-private:
+	std::map<websocketpp::connection_hdl, FlotillaClient, std::owner_less<websocketpp::connection_hdl>> clients;
+	FlotillaClient& get_client_from_hdl(websocketpp::connection_hdl hdl);
+	void setup_server(int flotilla_port);
+	void stop_server();
+	void start_server();
+	void send_to_clients(std::string command);
+
+	websocketpp::server<websocketpp::config::asio> websocket_server;
+	void init_client(websocketpp::connection_hdl hdl, FlotillaClient client);
+	void websocket_on_message(websocketpp::connection_hdl hdl, websocketpp::server<websocketpp::config::asio>::message_ptr msg);
+	void websocket_on_open(websocketpp::connection_hdl hdl);
+	void websocket_on_close(websocketpp::connection_hdl hdl);
+	void websocket_on_fail(websocketpp::connection_hdl hdl);
 };
 
 #endif

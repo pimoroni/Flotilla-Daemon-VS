@@ -1,4 +1,4 @@
-#include "Flotilla.h"
+#include "Flotilla_Client.h"
 
 FlotillaClient::FlotillaClient() {
 	connected = false;

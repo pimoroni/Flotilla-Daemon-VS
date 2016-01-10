@@ -59,8 +59,8 @@ This will probably change to some method of subscribing to a particular dock
 
 void for_each_port(void(*handle_port)(struct sp_port* port));
 
-namespace flotilla {
-
+class Flotilla {
+public:
 	FlotillaDock dock[MAX_DOCKS];
 	std::map<websocketpp::connection_hdl, FlotillaClient, std::owner_less<websocketpp::connection_hdl>> clients;
 	FlotillaClient& get_client_from_hdl(websocketpp::connection_hdl hdl);
@@ -76,5 +76,7 @@ namespace flotilla {
 	void websocket_on_close(websocketpp::connection_hdl hdl);
 	void websocket_on_fail(websocketpp::connection_hdl hdl);
 };
+
+static Flotilla flotilla;
 
 #endif

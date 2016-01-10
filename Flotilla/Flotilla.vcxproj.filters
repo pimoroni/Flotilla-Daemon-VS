@@ -18,17 +18,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Flotilla.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Main.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="libserialport.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Timestamp.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Discovery.h">
       <Filter>Header Files</Filter>
@@ -43,6 +34,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Flotilla_Dock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Flotilla.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Timestamp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

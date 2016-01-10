@@ -23,7 +23,7 @@ void cleanup(void){
 	for (i = 0; i < MAX_DOCKS; i++){
 		//flotilla.dock[i].thread_dock_tick.join();
 		std::cout << GetTimestamp() << "Disconnecting Dock " << (i+1) << std::endl;
-		flotilla::dock[i].disconnect();
+		flotilla.dock[i].disconnect();
 		//std::cout << GetTimestamp() << "Stopping Dock " << i << std::endl;
 		//flotilla.dock[i].stop();
 		//std::cout << GetTimestamp() << "Done... " << std::endl;
@@ -38,7 +38,7 @@ void cleanup(void){
 
 void sigint_handler(int sig_num){
 	//std::cout << GetTimestamp() << "Exiting cleanly, please wait..." << std::endl;
-	flotilla::stop_server();
+	flotilla.stop_server();
 	//exit(1);
 }
 
@@ -66,13 +66,13 @@ void update_connected_docks() {
 
 	for (x = 0; x < MAX_DOCKS; x++) {
 
-		if (flotilla::dock[x].port == NULL || flotilla::dock[x].state == Disconnected) {
+		if (flotilla.dock[x].port == NULL || flotilla.dock[x].state == Disconnected) {
 			continue;
 		};
 
 		//std::cout << GetTimestamp() << "Checking for dock " << flotilla.dock[x].name << std::endl;
 
-		const char* a = sp_get_port_name(flotilla::dock[x].port);
+		const char* a = sp_get_port_name(flotilla.dock[x].port);
 		bool found = false;
 
 		while (ports[y] != NULL) {
@@ -94,7 +94,7 @@ void update_connected_docks() {
 
 		if (!found) {
 			//std::cout << GetTimestamp() << "Dock " << (x+1) << " Disconnected" << std::endl;
-			flotilla::dock[x].disconnect();
+			flotilla.dock[x].disconnect();
 		}
 	}
 
@@ -150,8 +150,8 @@ void scan_for_host(struct sp_port* port) {
 #endif
 
 	for (x = 0; x < MAX_DOCKS; x++) {
-		if (flotilla::dock[x].state != Disconnected) {
-			const char* existing_port_name = sp_get_port_name(flotilla::dock[x].port);
+		if (flotilla.dock[x].state != Disconnected) {
+			const char* existing_port_name = sp_get_port_name(flotilla.dock[x].port);
 			if (strcmp(port_name, existing_port_name) == 0) {
 #ifdef DEBUG_SCAN_FOR_HOST
 				std::cout << GetTimestamp() << "Main.cpp: Found existing dock entry for " << port_name << std::endl;
@@ -199,16 +199,16 @@ void scan_for_host(struct sp_port* port) {
 		}*/
 
 		for (x = 0; x < MAX_DOCKS; x++){
-			if (flotilla::dock[x].state == Disconnected){
+			if (flotilla.dock[x].state == Disconnected){
 #ifdef DEBUG_SCAN_FOR_HOST
 				std::cout << GetTimestamp() << "Main.cpp: Using Dock slot at index " << x << std::endl;
 #endif
-				if (flotilla::dock[x].set_port(port)){
+				if (flotilla.dock[x].set_port(port)){
 #ifdef DEBUG_SCAN_FOR_HOST
 					std::cout << GetTimestamp() << "Main.cpp: Success! " << x << std::endl;
 #endif
 					//std::cout << GetTimestamp() << "Dock " << (x+1) << " Connected!" << std::endl;
-					flotilla::dock[x].cmd_enumerate();
+					flotilla.dock[x].cmd_enumerate();
 				};
 
 				return;
@@ -230,16 +230,16 @@ void worker_update_clients(void){
 
 		for (dock_idx = 0; dock_idx < MAX_DOCKS; dock_idx++){
 
-			for (auto event : flotilla::dock[dock_idx].get_pending_events()){
-				flotilla::send_to_clients(event);
+			for (auto event : flotilla.dock[dock_idx].get_pending_events()){
+				flotilla.send_to_clients(event);
 			}
 
-			if (flotilla::dock[dock_idx].state != Connected) continue;
+			if (flotilla.dock[dock_idx].state != Connected) continue;
 
 			//std::cout << GetTimestamp() << "Dock Update: " << flotilla.dock[dock_idx].serial << std::endl;
 
-			for (auto command : flotilla::dock[dock_idx].get_pending_commands()){
-				flotilla::send_to_clients(command);
+			for (auto command : flotilla.dock[dock_idx].get_pending_commands()){
+				flotilla.send_to_clients(command);
 			}
 
 		}
@@ -265,9 +265,9 @@ void worker_update_docks(void){
 
 		int dock_idx;
 		for (dock_idx = 0; dock_idx < MAX_DOCKS; dock_idx++){
-			if (flotilla::dock[dock_idx].state != Connected) continue;
+			if (flotilla.dock[dock_idx].state != Connected) continue;
 
-			flotilla::dock[dock_idx].tick();
+			flotilla.dock[dock_idx].tick();
 		}
 
 		auto elapsed = std::chrono::high_resolution_clock::now() - start;
@@ -503,18 +503,18 @@ int main(int argc, char *argv[])
 	thread_update_docks = std::thread(worker_update_docks);
 
 	for (i = 0; i < MAX_DOCKS; i++){
-		flotilla::dock[i].index = i;
+		flotilla.dock[i].index = i;
 	}
 
 	std::cout << GetTimestamp() << "Flotilla Ready To Set Sail..." << std::endl;
 
-	flotilla::setup_server(flotilla_port);
+	flotilla.setup_server(flotilla_port);
 
 	std::cout << GetTimestamp() << "Baud rate " << BAUD_RATE << std::endl;
 
 	std::cout << GetTimestamp() << "Listening on port " << flotilla_port << std::endl;
 
-	flotilla::start_server();
+	flotilla.start_server();
 
 	std::cout << GetTimestamp() << "Websocket Server Stopped, Cleaning Up..." << std::endl;
 

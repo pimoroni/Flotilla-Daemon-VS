@@ -138,8 +138,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>C:\Users\phil\Documents\Development\libserialport\build\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libserialport.dll.a;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>
-      </AdditionalOptions>
+      <AdditionalOptions>/FORCE:MULTIPLE</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -21,7 +21,6 @@ enum DockState {
 class FlotillaDock {
 public:
 	FlotillaDock();
-	~FlotillaDock();
 	int index;
 	DockState state;
 	std::string name;

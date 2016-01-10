@@ -12,17 +12,8 @@ public:
 	bool ready;     // Flag to indicate client ready status, module updates should not be sent unless client is ready
 	void queue_command(std::string cmd);
 	FlotillaClient();
-	FlotillaClient(const FlotillaClient& src) :
-		connected(src.connected),
-		ready(src.ready),
-		command_queue(src.command_queue),
-		mutex() {};
-	FlotillaClient& operator=(FlotillaClient src) {
-		std::swap(connected, src.connected);
-		std::swap(ready, src.ready);
-		std::swap(command_queue, src.command_queue);
-		return *this;
-	}
+	FlotillaClient(const FlotillaClient& src);
+	FlotillaClient operator=(FlotillaClient src);
 private:
 	void empty_queue(void);
 	std::mutex mutex;

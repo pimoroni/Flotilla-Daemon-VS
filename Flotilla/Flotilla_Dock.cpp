@@ -51,10 +51,6 @@ FlotillaDock::FlotillaDock(void) {
 	std::string version = "";
 }
 
-FlotillaDock::~FlotillaDock(void) {
-	//stop();
-}
-
 void FlotillaDock::queue_command(std::string command){
 	mutex.lock();
 	command_queue.push(command);

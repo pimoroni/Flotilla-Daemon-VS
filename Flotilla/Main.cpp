@@ -21,12 +21,8 @@ void cleanup(void){
 	thread_update_docks.join();
 
 	for (i = 0; i < MAX_DOCKS; i++){
-		//flotilla.dock[i].thread_dock_tick.join();
 		std::cout << GetTimestamp() << "Disconnecting Dock " << (i+1) << std::endl;
 		flotilla.dock[i].disconnect();
-		//std::cout << GetTimestamp() << "Stopping Dock " << i << std::endl;
-		//flotilla.dock[i].stop();
-		//std::cout << GetTimestamp() << "Done... " << std::endl;
 	}
 
 #if defined(__linux__) || defined(__APPLE__)
@@ -37,9 +33,7 @@ void cleanup(void){
 }
 
 void sigint_handler(int sig_num){
-	//std::cout << GetTimestamp() << "Exiting cleanly, please wait..." << std::endl;
 	flotilla.stop_server();
-	//exit(1);
 }
 
 void update_connected_docks() {
@@ -50,19 +44,6 @@ void update_connected_docks() {
 
 	int x = 0;
 	int y = 0;
-
-	/*while (ports[y] != NULL) {
-		struct sp_port* port = ports[y];
-		const char * name = sp_get_port_name(port);
-		const char * desc = sp_get_port_name(port);
-		int usb_vid, usb_pid;
-
-		sp_get_port_usb_vid_pid(port, &usb_vid, &usb_pid);
-
-		std::cout << GetTimestamp() << "Checking serial port " << name << " " << desc << " " << usb_vid << ":" << usb_pid << std::endl;
-
-		y++;
-	}*/
 
 	for (x = 0; x < MAX_DOCKS; x++) {
 
@@ -172,31 +153,6 @@ void scan_for_host(struct sp_port* port) {
 #ifdef DEBUG_SCAN_FOR_HOST
 		std::cout << GetTimestamp() << "Main.cpp: Successfully Identified Dock. Serial: " << temp.serial << std::endl;
 #endif
-		/*
-		printf("Host Version Info: %s\n", port_name);
-		printf("Host Version: %s\n", temp_version);
-		printf("Host Serial: %s\n", temp_serial);
-		printf("Host User: %s\n", temp_user);
-		printf("Host Name: %s\n", temp_name);
-		*/
-
-		/*for (x = 0; x < MAX_DOCKS; x++){
-			if (flotilla.dock[x].serial.compare(temp.serial) == 0){
-
-				std::cout << GetTimestamp() << "Found existing Dock with serial " << temp.serial << " at index " << x << std::endl;
-
-				if (flotilla.dock[x].state == Disconnected){
-
-					if (flotilla.dock[x].set_port(port)){
-						std::cout << GetTimestamp() << "Success! " << x << std::endl;
-						//flotilla.dock[x].start();
-					};
-
-				}
-
-				return;
-			}
-		}*/
 
 		for (x = 0; x < MAX_DOCKS; x++){
 			if (flotilla.dock[x].state == Disconnected){
@@ -226,7 +182,7 @@ void worker_update_clients(void){
 
 		auto start = std::chrono::high_resolution_clock::now();
 
-		int dock_idx; // , channel_idx;
+		int dock_idx;
 
 		for (dock_idx = 0; dock_idx < MAX_DOCKS; dock_idx++){
 
@@ -244,13 +200,11 @@ void worker_update_clients(void){
 
 		}
 
-		//send_to_clients("update");
-
 		auto elapsed = std::chrono::high_resolution_clock::now() - start;
 
 		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
 
-		std::this_thread::sleep_for(std::chrono::microseconds(100000 - microseconds));
+		std::this_thread::sleep_for(std::chrono::microseconds(10000 - microseconds));
 	}
 
 	return;
@@ -279,26 +233,6 @@ void worker_update_docks(void){
 	}
 }
 
-
-
-/*
-bool CtrlHandler(DWORD fdwCtrlType){
-	switch (fdwCtrlType){
-	case CTRL_C_EVENT:
-	case CTRL_CLOSE_EVENT:
-		websocket_stop();
-		std::cout << GetTimestamp() << "Doing closey things..." << std::endl;
-		std::cout << GetTimestamp() << "Does this stay open?..." << std::endl;
-		while (!safe_to_exit){
-			std::cout << GetTimestamp() << "Waiting..." << std::endl;
-			std::this_thread::sleep_for(std::chrono::microseconds(1000000));
-		};
-		return TRUE;
-	default:
-		return FALSE;
-	}
-}
-*/
 
 #if defined(__linux__) || defined(__APPLE__)
 void daemonize(){
@@ -390,15 +324,6 @@ int main(int argc, char *argv[])
 	running = 1;
 
 	discover_ipv4();
-
-
-	//safe_to_exit = 0;
-
-	/*struct sigaction sigIntHandler;
-	sigIntHandler.sa_handler = sigint_handler;
-	sigemptyset(&sigIntHandler.sa_mask);
-	sig_int_handler.sa_flags = 0;
-	sigaction(SIGINT, &sigIntHandler, NULL);*/
 
 	try {
 		options_description desc("Flotilla Server\nAvailable options");
@@ -494,10 +419,6 @@ int main(int argc, char *argv[])
 	signal(SIGINT, sigint_handler);
 	signal(SIGTERM, sigint_handler);
 
-	/*if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, TRUE)){
-		std::cout << GetTimestamp() << "Could not register Ctrl handler" << std::endl;
-	}*/
-
 	thread_dock_scan = std::thread(worker_dock_scan);
 	thread_update_clients = std::thread(worker_update_clients);
 	thread_update_docks = std::thread(worker_update_docks);
@@ -521,8 +442,6 @@ int main(int argc, char *argv[])
 	cleanup();
 
 	std::cout << GetTimestamp() << "Bye bye!" << std::endl;
-
-	//std::this_thread::sleep_for(std::chrono::microseconds(2000000));
 
 	return 0;
 }

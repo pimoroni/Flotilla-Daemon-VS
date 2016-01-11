@@ -319,6 +319,11 @@ void daemonize(){
 int main(int argc, char *argv[])
 {
 	running = 1;
+	std::ostringstream msg;
+	msg << GetTimestamp() << "Flotilla starting..." << std::endl;
+	std::cout << msg.str();
+	msg.str("");
+	msg.clear();
 
 	try {
 		options_description desc("Flotilla Server\nAvailable options");
@@ -419,31 +424,43 @@ int main(int argc, char *argv[])
 	signal(SIGINT, sigint_handler);
 	signal(SIGTERM, sigint_handler);
 
+	if (should_discover) {
+		msg << GetTimestamp() << "Discovery Service Enabled" << std::endl;
+		std::cout << msg.str();
+		msg.str("");
+		msg.clear();
+		thread_ip_notify = std::thread(worker_ip_notify);
+
+		//std::this_thread::sleep_for(std::chrono::seconds(2));
+	}
+
 	thread_dock_scan = std::thread(worker_dock_scan);
 	thread_update_clients = std::thread(worker_update_clients);
 
 	//thread_update_docks = std::thread(worker_update_docks);
 
-	std::cout << GetTimestamp() << "Flotilla Ready To Set Sail..." << std::endl;
-
 	flotilla.setup_server(flotilla_port);
 
-	std::cout << GetTimestamp() << "Baud rate " << BAUD_RATE << std::endl;
-
-	std::cout << GetTimestamp() << "Listening on port " << flotilla_port << std::endl;
-
-	if (should_discover) {
-		thread_ip_notify = std::thread(worker_ip_notify);
-		std::cout << GetTimestamp() << "Discovery Service Enabled" << std::endl;
-	}
+	msg << GetTimestamp() << "Baud rate " << BAUD_RATE << std::endl;
+	msg << GetTimestamp() << "Listening on port " << flotilla_port << std::endl;
+	msg << GetTimestamp() << "Flotilla ready to set sail..." << std::endl;
+	std::cout << msg.str();
+	msg.str("");
+	msg.clear();
 
 	flotilla.start_server();
 
-	std::cout << GetTimestamp() << "Websocket Server Stopped, Cleaning Up..." << std::endl;
+	msg << GetTimestamp() << "Websocket Server Stopped, Cleaning Up..." << std::endl;
+	std::cout << msg.str();
+	msg.str("");
+	msg.clear();
 
 	cleanup();
 
-	std::cout << GetTimestamp() << "Bye bye!" << std::endl;
+	msg << GetTimestamp() << "Bye bye!" << std::endl;
+	std::cout << msg.str();
+	msg.str("");
+	msg.clear();
 
 	return 0;
 }

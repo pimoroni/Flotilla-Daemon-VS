@@ -79,7 +79,9 @@ void FlotillaDock::tick(){
 			stream << "s " << (channel_index + 1) << " " << update;
 			update = stream.str();
 
-			std::cout << GetTimestamp() << "Sending to dock: " << update << std::endl;
+			std::ostringstream msg;
+			msg << GetTimestamp() << "Sending to dock: " << update << std::endl;
+			std::cout << msg.str();
 
 			sp_blocking_write(port, update.c_str(), update.length(), 0);
 			sp_blocking_write(port, "\r", 1, 0);
@@ -96,7 +98,9 @@ void FlotillaDock::tick(){
 
 		switch (command.at(0)){
 		case '#':{
-			std::cout << GetTimestamp() << "Dock: " << index << ", Debug: " << command.substr(2) << std::endl;
+			std::ostringstream msg;
+			msg << GetTimestamp() << "Dock: " << index << ", Debug: " << command.substr(2) << std::endl;
+			std::cout << msg.str();
 		} break;
 		case 'u':{
 
@@ -122,7 +126,9 @@ void FlotillaDock::tick(){
 
 				std::string name = command.substr(size + 3);
 
-				std::cout << GetTimestamp() << "Dock " << index << ", Ch " << channel << " Lost: " << name << std::endl;
+				std::ostringstream msg;
+				msg << GetTimestamp() << "Dock " << index << ", Ch " << channel << " Lost: " << name << std::endl;
+				std::cout << msg.str();
 
 				module[channel].disconnect();
 				queue_module_event(channel);
@@ -138,7 +144,9 @@ void FlotillaDock::tick(){
 
 				std::string name = command.substr(size + 3);
 
-				std::cout << GetTimestamp() << "Dock " << index << ", Ch " << channel << " Found: " << name << std::endl;
+				std::ostringstream msg;
+				msg << GetTimestamp() << "Dock " << index << ", Ch " << channel << " Found: " << name << std::endl;
+				std::cout << msg.str();
 
 				module[channel].connect(name);
 				queue_module_event(channel);
@@ -175,15 +183,20 @@ void FlotillaDock::disconnect(void){
 
 	sp_close(port);
 	sp_free_port(port);
-	std::cout << GetTimestamp() << "Dock Disconnected, serial " << serial << std::endl;
+
+	std::ostringstream msg;
+	msg << GetTimestamp() << "Dock Disconnected, serial " << serial << std::endl;
+	std::cout << msg.str();
 }
 
 void FlotillaDock::cmd_enumerate(void){
 
 	std::this_thread::sleep_for(std::chrono::microseconds(100000));
 	sp_blocking_write(port, "e\r", 2, 0);
-	std::cout << GetTimestamp() << "Enumerating Dock, serial " << serial << "..." << std::endl;
 
+	std::ostringstream msg;
+	msg << GetTimestamp() << "Enumerating Dock, serial " << serial << "..." << std::endl;
+	std::cout << msg.str();
 }
 
 bool FlotillaDock::set_port(sp_port *new_port){
@@ -213,16 +226,22 @@ bool FlotillaDock::set_port(sp_port *new_port){
 			}
 			else
 			{
-				std::cout << GetTimestamp() << "Flotilla_Dock.cpp: Failed to get version information..." << std::endl;
+				std::ostringstream msg;
+				msg << GetTimestamp() << "Warning: Failed to get dock version information" << std::endl;
+				std::cout << msg.str();
 			}
 		}
 		else
 		{
-			std::cout << GetTimestamp() << "Flotilla_Dock.cpp: Failed to open port " << port_name << std::endl;
+			std::ostringstream msg;
+			msg << GetTimestamp() << "Warning: Failed to open port " << port_name << std::endl;
+			std::cout << msg.str();
 		}
 	}
 	else{
-		std::cout << GetTimestamp() << "Flotilla_Dock.cpp: Failed to copy port!?..." << std::endl;
+		std::ostringstream msg;
+		msg << GetTimestamp() << "Warning: Failed to copy port!?" << std::endl;
+		std::cout << msg.str();
 	}
 
 	state = Disconnected;

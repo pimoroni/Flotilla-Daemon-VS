@@ -95,7 +95,9 @@ bool win_enumerate_ipv4()
 #endif
 
 void discover_addr(std::string ipv4_addr) {
-	std::cout << GetTimestamp() << "Discovered IPV4 address: " << ipv4_addr << std::endl;
+	std::ostringstream msg;
+	msg << GetTimestamp() << "Discovered IPV4 address: " << ipv4_addr << std::endl;
+	std::cout << msg.str();
 #ifdef NOTIFY_ENABLE
 	http_notify_ipv4(ipv4_addr);
 #endif
@@ -340,14 +342,18 @@ int http_notify_ipv4(std::string ipv4) {
 			std::cout << "DEBUG: Response: " << response << std::endl;
 #endif
 			if (response.substr(0, 2) == "ok") {
-				std::cout << GetTimestamp() << "IPV4 Address " << ipv4 << " registered successfully" << std::endl;
+				std::ostringstream msg;
+				msg << GetTimestamp() << "IPV4 Address " << ipv4 << " registered successfully" << std::endl;
+				std::cout << msg.str();
 				return true;
 			}
 		}
 	}
 	catch (std::exception& e)
 	{
-		std::cout << GetTimestamp() << "Discovery Exception: " << e.what() << std::endl;
+		std::ostringstream msg;
+		msg << GetTimestamp() << "Discovery Exception: " << e.what() << std::endl;
+		std::cout << msg.str();
 	}
 
 	return false;

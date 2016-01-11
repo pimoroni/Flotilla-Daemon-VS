@@ -27,7 +27,7 @@ void discover_addr(std::string ipv4_addr) {
 #ifdef NOTIFY_ENABLE
 	http_notify_ipv4(ipv4_addr);
 #endif
-	std::cout << GetTimestamp() << "Discovered address: " << ipv4_addr << std::endl;
+	std::cout << GetTimestamp() << "Discovered IPV4 address: " << ipv4_addr << std::endl;
 }
 
 bool win_enumerate_ipv4()
@@ -82,13 +82,61 @@ bool win_enumerate_ipv4()
 }
 #endif
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <ifaddrs.h>
 #include <netinet/in.h>
 #include <net/if.h>
 
+bool lin_enumerate_ipv4()
+{
+	ifaddrs* ifap = NULL;
+
+	int result = getifaddrs(&ifap);
+	int addr_count = 0;
+
+	if(result != 0){
+		// Non-zero result is an error
+		return false;
+	}
+
+	ifaddrs* current = ifap;
+
+	if(current == NULL){
+		// No interface found
+		return false;
+	}
+
+	while (current != NULL){
+
+		if( current->ifa_addr->sa_family == AF_INET){
+			const sockaddr_in* if_addr = reinterpret_cast<const sockaddr_in*>(current->ifa_addr);
+
+			int addr = ntohl(if_addr->sin_addr.s_addr);
+
+			if( ((addr >> 24) & 0xFF) != 169 && ((addr >> 24) & 0xFF) != 127 ){
+
+				std::ostringstream stream;
+
+				stream << ((addr >> 24) & 0xFF) << '.' << ((addr >> 16) & 0xFF) << '.' << ((addr >> 8) & 0xFF) << '.' << (addr & 0xFF);
+
+
+				std::ostringstream comsg;
+				comsg << GetTimestamp() << "DEBUG: Found IP address: " << stream.str() << std::endl;
+				
+				
+				addr_count++;
+
+			}
+
+		}
+
+		current = current->ifa_next;
+	}
+
+	return addr_count > 0;
+}
 
 #endif
 
@@ -137,12 +185,12 @@ int http_notify_ipv4(std::string ipv4) {
 		std::getline(response_stream, status_message);
 		if (!response_stream || http_version.substr(0, 5) != "HTTP/")
 		{
-			std::cout << "Invalid response\n";
+			std::cout << GetTimestamp() << "DEBUG: Invalid response" << std::endl;
 			return 1;
 		}
 		if (status_code != 200)
 		{
-			std::cout << "Response returned with status code " << status_code << "\n";
+			std::cout << GetTimestamp() << "DEBUG: Response returned with status code " << status_code << std::endl;
 			return 1;
 		}
 
@@ -168,8 +216,10 @@ int http_notify_ipv4(std::string ipv4) {
 	}
 	catch (std::exception& e)
 	{
-		std::cout << "Exception: " << e.what() << "\n";
+		std::cout << GetTimestamp() << "DEBUG: Exception: " << e.what() << std::endl;
 	}
+
+	return true;
 
 }
 
@@ -182,6 +232,9 @@ int discover_ipv4()
 	}
 	win_enumerate_ipv4();
 	WSACleanup();
+#endif
+#if defined(__linux__) || defined(__APPLE__)
+	lin_enumerate_ipv4();
 #endif
 
 	return 0;

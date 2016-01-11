@@ -1,7 +1,7 @@
 CC = g++
 DEPS = ../../lib/
 LDFLAGS = -O2 -std=c++11 -L. -lserialport -lboost_system -lboost_filesystem -lboost_program_options -lpthread
-CFLAGS = -O2 -c -std=c++11 -I${DEPS}websocketpp/
+CFLAGS = -O2 -c -std=c++11 -I${DEPS}websocketpp/ -Wall
 
 SOURCES=Discovery.cpp Timestamp.cpp Flotilla.cpp Flotilla_Dock.cpp Flotilla_Module.cpp Flotilla_Client.cpp Main.cpp
 BUILDDIR=Debug

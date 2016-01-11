@@ -14,7 +14,7 @@
 #define PID_FILE_PATH "/var/run/flotilla.pid"
 #define LOG_FILE_PATH "/var/log/flotilla.log"
 
-#define NOTIFY_REQUEST_HOST "10.0.1.24"
+#define NOTIFY_REQUEST_HOST "192.168.0.103"
 #define NOTIFY_REQUEST_PORT "8000"
 #define NOTIFY_INTERVAL 300  // 3600 = 1hr
 #define NOTIFY_ENABLE

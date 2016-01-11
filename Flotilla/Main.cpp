@@ -10,6 +10,7 @@ std::string pid_file_path = PID_FILE_PATH;
 std::string log_file_path = LOG_FILE_PATH;
 int flotilla_port = FLOTILLA_PORT;
 bool should_daemonize = true;
+bool should_discover = true;
 bool be_verbose = false;
 
 void cleanup(void){
@@ -18,7 +19,10 @@ void cleanup(void){
 
 	thread_dock_scan.join();
 	thread_update_clients.join();
-	thread_update_docks.join();
+	if (should_discover) {
+		thread_ip_notify.join();
+	}
+	//thread_update_docks.join();
 
 	for (i = 0; i < MAX_DOCKS; i++){
 		std::cout << GetTimestamp() << "Disconnecting Dock " << (i+1) << std::endl;
@@ -88,21 +92,20 @@ void update_connected_docks() {
 	sp_free_port_list(ports);
 }
 
+void worker_ip_notify(void) {
+	while (running) {
+		discover_ipv4();
+		std::this_thread::sleep_for(std::chrono::seconds(NOTIFY_INTERVAL));
+	}
+	return;
+}
+
 /* Scan for new docks */
 void worker_dock_scan(void) {
-	static int seconds = 0;
 	while (running) {
-		if (seconds == 0) {
-			discover_ipv4();
-		}
-		seconds++;
-		if (seconds >= NOTIFY_INTERVAL) { // 3600 = 1hr
-			seconds = 0;
-		}
 		update_connected_docks();
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
-
 	return;
 }
 
@@ -189,6 +192,7 @@ void worker_update_clients(void){
 
 		auto start = std::chrono::high_resolution_clock::now();
 
+		flotilla.update_docks();
 		flotilla.update_clients();
 
 		auto elapsed = std::chrono::high_resolution_clock::now() - start;
@@ -201,6 +205,7 @@ void worker_update_clients(void){
 	return;
 }
 
+/*
 void worker_update_docks(void){
 	while (running){
 		// Iterate through every dock and pass messages on to the client
@@ -218,7 +223,7 @@ void worker_update_docks(void){
 	}
 	return;
 }
-
+*/
 
 #if defined(__linux__) || defined(__APPLE__)
 void daemonize(){
@@ -314,6 +319,7 @@ int main(int argc, char *argv[])
 	    desc.add_options()
 	        ("help,h", "Print this usage message")
 	        ("port,p", value<int>(&flotilla_port), "Specify an alternate port")
+			("no-discover,r", bool_switch(), "Prevent Flotilla from registering its LAN IP")
 #if defined(__linux__) || defined(__APPLE__)
 	        ("pid-file", value<std::string>(&pid_file_path), "Specify an alternate pid file path")
 	        ("log-file", value<std::string>(&log_file_path), "Specify an alternate log file path")
@@ -361,6 +367,10 @@ int main(int argc, char *argv[])
 		}
 #endif
 
+		if (vm.count("no-discover")) {
+			should_discover = !vm["no-discover"].as<bool>();
+		}
+
 	    if (vm.count("port")) { 
 	    	flotilla_port = vm["port"].as<int>();
 		}
@@ -404,7 +414,12 @@ int main(int argc, char *argv[])
 
 	thread_dock_scan = std::thread(worker_dock_scan);
 	thread_update_clients = std::thread(worker_update_clients);
-	thread_update_docks = std::thread(worker_update_docks);
+
+	if (should_discover) {
+		thread_ip_notify = std::thread(worker_ip_notify);
+	}
+
+	//thread_update_docks = std::thread(worker_update_docks);
 
 	std::cout << GetTimestamp() << "Flotilla Ready To Set Sail..." << std::endl;
 

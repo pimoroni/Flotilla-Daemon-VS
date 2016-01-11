@@ -27,6 +27,9 @@ using boost::lambda::bind;
 using boost::lambda::var;
 using boost::lambda::_1;
 
+
+//#define _DISCOVERY_DEBUG
+
 #ifdef _WIN32
 
 #ifndef _WIN32_WINNT
@@ -38,13 +41,6 @@ using boost::lambda::_1;
 #include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "iphlpapi.lib")
-
-void discover_addr(std::string ipv4_addr) {
-#ifdef NOTIFY_ENABLE
-	http_notify_ipv4(ipv4_addr);
-#endif
-	std::cout << GetTimestamp() << "Discovered IPV4 address: " << ipv4_addr << std::endl;
-}
 
 bool win_enumerate_ipv4()
 {
@@ -98,6 +94,13 @@ bool win_enumerate_ipv4()
 }
 #endif
 
+void discover_addr(std::string ipv4_addr) {
+	std::cout << GetTimestamp() << "Discovered IPV4 address: " << ipv4_addr << std::endl;
+#ifdef NOTIFY_ENABLE
+	http_notify_ipv4(ipv4_addr);
+#endif
+}
+
 #if defined(__linux__) || defined(__APPLE__)
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -137,10 +140,7 @@ bool lin_enumerate_ipv4()
 
 				stream << ((addr >> 24) & 0xFF) << '.' << ((addr >> 16) & 0xFF) << '.' << ((addr >> 8) & 0xFF) << '.' << (addr & 0xFF);
 
-
-				std::ostringstream comsg;
-				comsg << GetTimestamp() << "DEBUG: Found IP address: " << stream.str() << std::endl;
-				
+				discover_addr(stream.str());
 				
 				addr_count++;
 
@@ -325,7 +325,9 @@ int http_notify_ipv4(std::string ipv4) {
 		ip_notify_client.write_line("\r", boost::posix_time::seconds(5));
 
 		std::string response = ip_notify_client.read_line(boost::posix_time::seconds(5));
+#ifdef _DISCOVERY_DEBUG
 		std::cout << "DEBUG: Response: " << response << std::endl;
+#endif
 
 		if (response.substr(0,5) != "HTTP/") {
 			return false;
@@ -334,16 +336,18 @@ int http_notify_ipv4(std::string ipv4) {
 		for (;;)
 		{
 			response = ip_notify_client.read_line(boost::posix_time::seconds(5));
+#ifdef _DISCOVERY_DEBUG
 			std::cout << "DEBUG: Response: " << response << std::endl;
+#endif
 			if (response.substr(0, 2) == "ok") {
-				std::cout << "DEBUG: Notify success!" << std::endl;
+				std::cout << GetTimestamp() << "IPV4 Address " << ipv4 << " registered successfully" << std::endl;
 				return true;
 			}
 		}
 	}
 	catch (std::exception& e)
 	{
-		std::cout << GetTimestamp() << "DEBUG: Exception: " << e.what() << std::endl;
+		std::cout << GetTimestamp() << "Discovery Exception: " << e.what() << std::endl;
 	}
 
 	return false;

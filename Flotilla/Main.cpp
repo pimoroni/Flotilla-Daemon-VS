@@ -93,9 +93,16 @@ void update_connected_docks() {
 }
 
 void worker_ip_notify(void) {
+	static int seconds = 0;
 	while (running) {
-		discover_ipv4();
-		std::this_thread::sleep_for(std::chrono::seconds(NOTIFY_INTERVAL));
+		if( seconds > NOTIFY_INTERVAL ){
+			seconds = 0;
+		}
+		if( seconds == 0 ){
+			discover_ipv4();
+		}
+		seconds++;
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 	return;
 }
@@ -415,10 +422,6 @@ int main(int argc, char *argv[])
 	thread_dock_scan = std::thread(worker_dock_scan);
 	thread_update_clients = std::thread(worker_update_clients);
 
-	if (should_discover) {
-		thread_ip_notify = std::thread(worker_ip_notify);
-	}
-
 	//thread_update_docks = std::thread(worker_update_docks);
 
 	std::cout << GetTimestamp() << "Flotilla Ready To Set Sail..." << std::endl;
@@ -428,6 +431,11 @@ int main(int argc, char *argv[])
 	std::cout << GetTimestamp() << "Baud rate " << BAUD_RATE << std::endl;
 
 	std::cout << GetTimestamp() << "Listening on port " << flotilla_port << std::endl;
+
+	if (should_discover) {
+		thread_ip_notify = std::thread(worker_ip_notify);
+		std::cout << GetTimestamp() << "Discovery Service Enabled" << std::endl;
+	}
 
 	flotilla.start_server();
 

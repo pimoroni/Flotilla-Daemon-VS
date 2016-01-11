@@ -1,15 +1,31 @@
 #include <string>
 #include <sstream>
 #include <iostream>
-#include <boost/asio.hpp>
-#include <iostream>
 #include <sstream>
+#include <cstdlib>
+
+#include <boost/asio/connect.hpp>
+#include <boost/asio/deadline_timer.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/read_until.hpp>
+#include <boost/asio/streambuf.hpp>
+#include <boost/system/system_error.hpp>
+#include <boost/asio/write.hpp>
+#include <boost/asio/read.hpp>
+#include <boost/asio/error.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 
 #include "Config.h"
 #include "Discovery.h"
 #include "Timestamp.h"
 
+using boost::asio::deadline_timer;
 using boost::asio::ip::tcp;
+using boost::lambda::bind;
+using boost::lambda::var;
+using boost::lambda::_1;
 
 #ifdef _WIN32
 
@@ -140,86 +156,197 @@ bool lin_enumerate_ipv4()
 
 #endif
 
-int http_notify_ipv4(std::string ipv4) {
+class tcp_client
+{
+public:
+	tcp_client()
+		: socket_(io_service_),
+		deadline_(io_service_)
+	{
+		// No deadline is required until the first socket operation is started. We
+		// set the deadline to positive infinity so that the actor takes no action
+		// until a specific deadline is set.
+		deadline_.expires_at(boost::posix_time::pos_infin);
 
+		// Start the persistent actor that checks for deadline expiry.
+		check_deadline();
+	}
+
+	void connect(const std::string& host, const std::string& service,
+		boost::posix_time::time_duration timeout)
+	{
+		// Resolve the host name and service to a list of endpoints.
+		tcp::resolver::query query(host, service);
+		tcp::resolver::iterator iter = tcp::resolver(io_service_).resolve(query);
+
+		// Set a deadline for the asynchronous operation. As a host name may
+		// resolve to multiple endpoints, this function uses the composed operation
+		// async_connect. The deadline applies to the entire operation, rather than
+		// individual connection attempts.
+		deadline_.expires_from_now(timeout);
+
+		// Set up the variable that receives the result of the asynchronous
+		// operation. The error code is set to would_block to signal that the
+		// operation is incomplete. Asio guarantees that its asynchronous
+		// operations will never fail with would_block, so any other value in
+		// ec indicates completion.
+		boost::system::error_code ec = boost::asio::error::would_block;
+
+		// Start the asynchronous operation itself. The boost::lambda function
+		// object is used as a callback and will update the ec variable when the
+		// operation completes. The blocking_udp_client.cpp example shows how you
+		// can use boost::bind rather than boost::lambda.
+		boost::asio::async_connect(socket_, iter, var(ec) = _1);
+
+		// Block until the asynchronous operation has completed.
+		do io_service_.run_one(); while (ec == boost::asio::error::would_block);
+
+		// Determine whether a connection was successfully established. The
+		// deadline actor may have had a chance to run and close our socket, even
+		// though the connect operation notionally succeeded. Therefore we must
+		// check whether the socket is still open before deciding if we succeeded
+		// or failed.
+		if (ec || !socket_.is_open())
+			throw boost::system::system_error(
+				ec ? ec : boost::asio::error::operation_aborted);
+	}
+
+	std::string read_line(boost::posix_time::time_duration timeout)
+	{
+		// Set a deadline for the asynchronous operation. Since this function uses
+		// a composed operation (async_read_until), the deadline applies to the
+		// entire operation, rather than individual reads from the socket.
+		deadline_.expires_from_now(timeout);
+
+		// Set up the variable that receives the result of the asynchronous
+		// operation. The error code is set to would_block to signal that the
+		// operation is incomplete. Asio guarantees that its asynchronous
+		// operations will never fail with would_block, so any other value in
+		// ec indicates completion.
+		boost::system::error_code ec = boost::asio::error::would_block;
+
+		// Start the asynchronous operation itself. The boost::lambda function
+		// object is used as a callback and will update the ec variable when the
+		// operation completes. The blocking_udp_client.cpp example shows how you
+		// can use boost::bind rather than boost::lambda.
+		boost::asio::async_read_until(socket_, input_buffer_, '\n', var(ec) = _1);
+
+		// Block until the asynchronous operation has completed.
+		do io_service_.run_one(); while (ec == boost::asio::error::would_block);
+
+		if (ec)
+			throw boost::system::system_error(ec);
+
+		std::string line;
+		std::istream is(&input_buffer_);
+		std::getline(is, line);
+		return line;
+	}
+
+
+	void write_line(const std::string& line,
+		boost::posix_time::time_duration timeout)
+	{
+		std::string data = line + "\n";
+
+		// Set a deadline for the asynchronous operation. Since this function uses
+		// a composed operation (async_write), the deadline applies to the entire
+		// operation, rather than individual writes to the socket.
+		deadline_.expires_from_now(timeout);
+
+		// Set up the variable that receives the result of the asynchronous
+		// operation. The error code is set to would_block to signal that the
+		// operation is incomplete. Asio guarantees that its asynchronous
+		// operations will never fail with would_block, so any other value in
+		// ec indicates completion.
+		boost::system::error_code ec = boost::asio::error::would_block;
+
+		// Start the asynchronous operation itself. The boost::lambda function
+		// object is used as a callback and will update the ec variable when the
+		// operation completes. The blocking_udp_client.cpp example shows how you
+		// can use boost::bind rather than boost::lambda.
+		boost::asio::async_write(socket_, boost::asio::buffer(data), var(ec) = _1);
+
+		// Block until the asynchronous operation has completed.
+		do io_service_.run_one(); while (ec == boost::asio::error::would_block);
+
+		if (ec)
+			throw boost::system::system_error(ec);
+	}
+
+private:
+	void check_deadline()
+	{
+		// Check whether the deadline has passed. We compare the deadline against
+		// the current time since a new asynchronous operation may have moved the
+		// deadline before this actor had a chance to run.
+		if (deadline_.expires_at() <= deadline_timer::traits_type::now())
+		{
+			// The deadline has passed. The socket is closed so that any outstanding
+			// asynchronous operations are cancelled. This allows the blocked
+			// connect(), read_line() or write_line() functions to return.
+			boost::system::error_code ignored_ec;
+			socket_.close(ignored_ec);
+
+			// There is no longer an active deadline. The expiry is set to positive
+			// infinity so that the actor takes no action until a new deadline is set.
+			deadline_.expires_at(boost::posix_time::pos_infin);
+		}
+
+		// Put the actor back to sleep.
+		deadline_.async_wait(bind(&tcp_client::check_deadline, this));
+	}
+
+	boost::asio::io_service io_service_;
+	tcp::socket socket_;
+	deadline_timer deadline_;
+	boost::asio::streambuf input_buffer_;
+};
+
+
+int http_notify_ipv4(std::string ipv4) {
 
 	try
 	{
-		boost::asio::io_service io_service;
+		tcp_client ip_notify_client;
+		ip_notify_client.connect(NOTIFY_REQUEST_HOST, NOTIFY_REQUEST_PORT, boost::posix_time::seconds(5));
 
-		// Get a list of endpoints corresponding to the server name.
-		tcp::resolver resolver(io_service);
-		tcp::resolver::query query(NOTIFY_REQUEST_HOST, NOTIFY_REQUEST_PORT);
-		tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+		std::ostringstream http_get_request;
 
-		// Try each endpoint until we successfully establish a connection.
-		tcp::socket socket(io_service);
-		boost::asio::connect(socket, endpoint_iterator);
+		http_get_request << "GET /add?ipv4=" << ipv4 << " HTTP/1.0\r";
+		ip_notify_client.write_line(http_get_request.str(), boost::posix_time::seconds(5));
 
-		// Form the request. We specify the "Connection: close" header so that the
-		// server will close the socket after transmitting the response. This will
-		// allow us to treat all data up until the EOF as the content.
-		boost::asio::streambuf request;
-		std::ostream request_stream(&request);
-		request_stream << "GET /add?ipv4=" << ipv4 << " HTTP/1.0\r\n";
-		request_stream << "Host: " << NOTIFY_REQUEST_HOST << "\r\n";
-		request_stream << "Accept: */*\r\n";
-		request_stream << "Connection: close\r\n\r\n";
+		http_get_request.clear();
+		http_get_request << "Host: " << NOTIFY_REQUEST_HOST << "\r";
+		ip_notify_client.write_line(http_get_request.str(), boost::posix_time::seconds(5));
 
-		// Send the request.
-		boost::asio::write(socket, request);
+		ip_notify_client.write_line("Accept: */*\r", boost::posix_time::seconds(5));
+		ip_notify_client.write_line("Connection: close\r", boost::posix_time::seconds(5));
+		ip_notify_client.write_line("\r", boost::posix_time::seconds(5));
 
-		// Read the response status line. The response streambuf will automatically
-		// grow to accommodate the entire line. The growth may be limited by passing
-		// a maximum size to the streambuf constructor.
-		boost::asio::streambuf response;
-		boost::asio::read_until(socket, response, "\r\n");
+		std::string response = ip_notify_client.read_line(boost::posix_time::seconds(5));
+		std::cout << "DEBUG: Response: " << response << std::endl;
 
-		// Check that response is OK.
-		std::istream response_stream(&response);
-		std::string http_version;
-		response_stream >> http_version;
-		unsigned int status_code;
-		response_stream >> status_code;
-		std::string status_message;
-		std::getline(response_stream, status_message);
-		if (!response_stream || http_version.substr(0, 5) != "HTTP/")
-		{
-			std::cout << GetTimestamp() << "DEBUG: Invalid response" << std::endl;
-			return 1;
-		}
-		if (status_code != 200)
-		{
-			std::cout << GetTimestamp() << "DEBUG: Response returned with status code " << status_code << std::endl;
-			return 1;
+		if (response.substr(0,5) != "HTTP/") {
+			return false;
 		}
 
-		// Read the response headers, which are terminated by a blank line.
-		boost::asio::read_until(socket, response, "\r\n\r\n");
-		// Process the response headers.
-		std::string header;
-		while (std::getline(response_stream, header) && header != "\r")
-			std::cout << header << "\n";
-		std::cout << "\n";
-
-		// Write whatever content we already have to output.
-		if (response.size() > 0)
-			std::cout << &response;
-
-		// Read until EOF, writing data to output as we go.
-		boost::system::error_code error;
-		while (boost::asio::read(socket, response,
-			boost::asio::transfer_at_least(1), error))
-			std::cout << &response;
-		if (error != boost::asio::error::eof)
-			throw boost::system::system_error(error);
+		for (;;)
+		{
+			response = ip_notify_client.read_line(boost::posix_time::seconds(5));
+			std::cout << "DEBUG: Response: " << response << std::endl;
+			if (response.substr(0, 2) == "ok") {
+				std::cout << "DEBUG: Notify success!" << std::endl;
+				return true;
+			}
+		}
 	}
 	catch (std::exception& e)
 	{
 		std::cout << GetTimestamp() << "DEBUG: Exception: " << e.what() << std::endl;
 	}
 
-	return true;
+	return false;
 
 }
 

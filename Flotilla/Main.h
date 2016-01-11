@@ -18,12 +18,15 @@
 
 #include "Flotilla.h"
 
+std::thread thread_ip_notify;
 std::thread thread_dock_scan;
 std::thread thread_update_clients;
-std::thread thread_update_docks;
+//std::thread thread_update_docks;
 
 void worker_update_clients(void);
-void worker_update_docks(void);
+//void worker_update_docks(void);
+void worker_dock_scan(void);
+void worker_ip_notify(void);
 
 void cleanup(void);
 void sigint_handler(int sig_num);

@@ -112,7 +112,7 @@ bool discover_addr(std::string ipv4_addr) {
 #include <netinet/in.h>
 #include <net/if.h>
 
-bool lin_enumerate_ipv4(std::vector<std::string> &ipv4_addresses;)
+bool lin_enumerate_ipv4(std::vector<std::string> &ipv4_addresses)
 {
 	
 	ifaddrs* ifap = NULL;

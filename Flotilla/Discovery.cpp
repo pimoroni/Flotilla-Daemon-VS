@@ -28,7 +28,7 @@ using boost::lambda::var;
 using boost::lambda::_1;
 
 
-//#define _DISCOVERY_DEBUG
+#define _DISCOVERY_DEBUG
 
 #ifdef _WIN32
 
@@ -249,6 +249,12 @@ public:
 	void write_line(const std::string& line,
 		boost::posix_time::time_duration timeout)
 	{
+#ifdef _DISCOVERY_DEBUG
+		std::ostringstream msg;
+		msg << "DEBUG: Request: " << line << std::endl;
+		std::cout << msg.str();
+#endif
+
 		std::string data = line + "\n";
 
 		// Set a deadline for the asynchronous operation. Since this function uses
@@ -311,22 +317,25 @@ int http_notify_ipv4(std::string ipv4) {
 	try
 	{
 		tcp_client ip_notify_client;
-		ip_notify_client.connect(NOTIFY_REQUEST_HOST, NOTIFY_REQUEST_PORT, boost::posix_time::seconds(5));
+		ip_notify_client.connect(NOTIFY_REQUEST_HOST, NOTIFY_REQUEST_PORT, boost::posix_time::seconds(10));
 
 		std::ostringstream http_get_request;
 
-		http_get_request << "GET /add?ipv4=" << ipv4 << " HTTP/1.0\r";
-		ip_notify_client.write_line(http_get_request.str(), boost::posix_time::seconds(5));
-
+		http_get_request << "GET /add?ipv4=" << ipv4 << " HTTP/1.1\r";
+		ip_notify_client.write_line(http_get_request.str(), boost::posix_time::seconds(10));
 		http_get_request.clear();
+		http_get_request.str("");
+
 		http_get_request << "Host: " << NOTIFY_REQUEST_HOST << "\r";
-		ip_notify_client.write_line(http_get_request.str(), boost::posix_time::seconds(5));
+		ip_notify_client.write_line(http_get_request.str(), boost::posix_time::seconds(10));
+		http_get_request.clear();
+		http_get_request.str("");
 
-		ip_notify_client.write_line("Accept: */*\r", boost::posix_time::seconds(5));
-		ip_notify_client.write_line("Connection: close\r", boost::posix_time::seconds(5));
-		ip_notify_client.write_line("\r", boost::posix_time::seconds(5));
+		ip_notify_client.write_line("Accept: */*\r", boost::posix_time::seconds(10));
+		ip_notify_client.write_line("Connection: close\r", boost::posix_time::seconds(10));
+		ip_notify_client.write_line("\r", boost::posix_time::seconds(10));
 
-		std::string response = ip_notify_client.read_line(boost::posix_time::seconds(5));
+		std::string response = ip_notify_client.read_line(boost::posix_time::seconds(10));
 #ifdef _DISCOVERY_DEBUG
 		std::cout << "DEBUG: Response: " << response << std::endl;
 #endif
@@ -337,7 +346,7 @@ int http_notify_ipv4(std::string ipv4) {
 
 		for (;;)
 		{
-			response = ip_notify_client.read_line(boost::posix_time::seconds(5));
+			response = ip_notify_client.read_line(boost::posix_time::seconds(10));
 #ifdef _DISCOVERY_DEBUG
 			std::cout << "DEBUG: Response: " << response << std::endl;
 #endif

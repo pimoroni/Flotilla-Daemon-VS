@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <vector>
 
 #include <boost/asio/connect.hpp>
 #include <boost/asio/deadline_timer.hpp>
@@ -42,7 +43,7 @@ using boost::lambda::_1;
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "iphlpapi.lib")
 
-bool win_enumerate_ipv4()
+bool win_enumerate_ipv4(std::vector<std::string> &ipv4_addresses)
 {
 	DWORD rv, size;
 	PIP_ADAPTER_ADDRESSES adapter_addresses, aa;
@@ -83,24 +84,25 @@ bool win_enumerate_ipv4()
 
 				ipv4_addr << buf;
 
-				discover_addr(ipv4_addr.str());
+				ipv4_addresses.push_back(ipv4_addr.str());
 			}
 		}
 	}
 
 	free(adapter_addresses);
 
-	return true;
+	return ipv4_addresses.size() > 0;
 }
 #endif
 
-void discover_addr(std::string ipv4_addr) {
+bool discover_addr(std::string ipv4_addr) {
 	std::ostringstream msg;
 	msg << GetTimestamp() << "Discovered IPV4 address: " << ipv4_addr << std::endl;
 	std::cout << msg.str();
 #ifdef NOTIFY_ENABLE
-	http_notify_ipv4(ipv4_addr);
+	return http_notify_ipv4(ipv4_addr);
 #endif
+	return false;
 }
 
 #if defined(__linux__) || defined(__APPLE__)
@@ -110,12 +112,12 @@ void discover_addr(std::string ipv4_addr) {
 #include <netinet/in.h>
 #include <net/if.h>
 
-bool lin_enumerate_ipv4()
+bool lin_enumerate_ipv4(std::vector<std::string> &ipv4_addresses;)
 {
+	
 	ifaddrs* ifap = NULL;
 
 	int result = getifaddrs(&ifap);
-	int addr_count = 0;
 
 	if(result != 0){
 		// Non-zero result is an error
@@ -138,13 +140,11 @@ bool lin_enumerate_ipv4()
 
 			if( ((addr >> 24) & 0xFF) != 169 && ((addr >> 24) & 0xFF) != 127 ){
 
-				std::ostringstream stream;
+				std::ostringstream ipv4_addr;
 
-				stream << ((addr >> 24) & 0xFF) << '.' << ((addr >> 16) & 0xFF) << '.' << ((addr >> 8) & 0xFF) << '.' << (addr & 0xFF);
+				ipv4_addr << ((addr >> 24) & 0xFF) << '.' << ((addr >> 16) & 0xFF) << '.' << ((addr >> 8) & 0xFF) << '.' << (addr & 0xFF);
 
-				discover_addr(stream.str());
-				
-				addr_count++;
+				ipv4_addresses.push_back(ipv4_addr.str());
 
 			}
 
@@ -153,7 +153,7 @@ bool lin_enumerate_ipv4()
 		current = current->ifa_next;
 	}
 
-	return addr_count > 0;
+	return ipv4_addresses.size() > 0;;
 }
 
 #endif
@@ -371,17 +371,29 @@ int http_notify_ipv4(std::string ipv4) {
 
 int discover_ipv4()
 {
+	std::vector<std::string> ipv4_addresses;
+	int result;
+
 #ifdef _WIN32
 	WSAData d;
 	if (WSAStartup(MAKEWORD(2, 2), &d) != 0) {
 		return -1;
 	}
-	win_enumerate_ipv4();
+	result = win_enumerate_ipv4(ipv4_addresses);
 	WSACleanup();
 #endif
 #if defined(__linux__) || defined(__APPLE__)
-	lin_enumerate_ipv4();
+	result = lin_enumerate_ipv4(ipv4_addresses);
 #endif
 
-	return 0;
+	int notify_count = 0;
+	if (result > 0) {
+		for (auto ipv4_address : ipv4_addresses) {
+			if (discover_addr(ipv4_address)) {
+				notify_count++;
+			}
+		}
+	}
+
+	return notify_count > 0;
 }

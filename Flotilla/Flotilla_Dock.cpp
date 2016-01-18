@@ -76,9 +76,11 @@ void FlotillaDock::tick(){
 			stream << "s " << (channel_index + 1) << " " << update;
 			update = stream.str();
 
+#ifdef DEBUG_TRANSPORT
 			std::ostringstream msg;
 			msg << GetTimestamp() << "Sending to dock: " << update << std::endl;
 			std::cout << msg.str();
+#endif
 
 			sp_blocking_write(port, update.c_str(), update.length(), 0);
 			sp_blocking_write(port, "\r", 1, 0);

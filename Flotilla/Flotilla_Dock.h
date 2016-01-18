@@ -45,6 +45,7 @@ public:
 	void disconnect(void);
 	void queue_command(std::string cmd);
 	void cmd_enumerate(void);
+	void process_command(std::string command);
 private:
 	std::mutex mutex;
 	std::queue <std::string> command_queue;

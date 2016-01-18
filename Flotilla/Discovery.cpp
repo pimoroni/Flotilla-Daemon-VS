@@ -28,9 +28,6 @@ using boost::lambda::bind;
 using boost::lambda::var;
 using boost::lambda::_1;
 
-
-#define _DISCOVERY_DEBUG
-
 #ifdef _WIN32
 
 #ifndef _WIN32_WINNT

@@ -92,32 +92,6 @@ void update_connected_docks() {
 	sp_free_port_list(ports);
 }
 
-void worker_ip_notify(void) {
-	static int seconds = 0;
-	while (running) {
-		if( seconds > NOTIFY_INTERVAL ){
-			seconds = 0;
-		}
-		if( seconds == 0 ){
-			discover_ipv4();
-		}
-		seconds++;
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-	}
-	return;
-}
-
-/* Scan for new docks */
-void worker_dock_scan(void) {
-	while (running) {
-		update_connected_docks();
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-	}
-	return;
-}
-
-//#define DEBUG_SCAN_FOR_HOST
-
 void scan_for_host(struct sp_port* port) {
 	int x;
 
@@ -160,40 +134,35 @@ void scan_for_host(struct sp_port* port) {
 		}
 	}
 
-	//std::cout << GetTimestamp() << "Found port: " << port_desc << ", Name: " << port_name << std::endl;
-	//std::cout << GetTimestamp() << "PID: " << usb_pid << " VID: " << usb_vid << std::endl;
-
-	FlotillaDock temp;
-
-	if (temp.set_port(port)){
-		temp.disconnect();
+	for (x = 0; x < MAX_DOCKS; x++){
+		if (flotilla.dock[x].state == Disconnected){
 #ifdef DEBUG_SCAN_FOR_HOST
-		std::cout << GetTimestamp() << "Main.cpp: Successfully Identified Dock. Serial: " << temp.serial << std::endl;
+			std::cout << GetTimestamp() << "Main.cpp: Using Dock slot at index " << x << std::endl;
 #endif
-
-		for (x = 0; x < MAX_DOCKS; x++){
-			if (flotilla.dock[x].state == Disconnected){
+			if (flotilla.dock[x].set_port(port)){
 #ifdef DEBUG_SCAN_FOR_HOST
-				std::cout << GetTimestamp() << "Main.cpp: Using Dock slot at index " << x << std::endl;
+				std::cout << GetTimestamp() << "Main.cpp: Success! " << x << std::endl;
 #endif
-				if (flotilla.dock[x].set_port(port)){
-#ifdef DEBUG_SCAN_FOR_HOST
-					std::cout << GetTimestamp() << "Main.cpp: Success! " << x << std::endl;
-#endif
-					//std::cout << GetTimestamp() << "Dock " << (x+1) << " Connected!" << std::endl;
-					flotilla.dock[x].cmd_enumerate();
-				};
+				flotilla.dock[x].cmd_enumerate();
+			};
 
-				return;
-			}
+			return;
 		}
-
 	}
 
 }
 
 /* Update Threads */
 
+/*
+Update connected Docks and Clients
+
+The Daemon arbitrates between connected docks and clients,
+allowing for a multi-dock, multi-client environment. The
+update_docks and update_clients functions are called here
+at approximately the same framerate of Rockpool which is our
+main client.
+*/
 void worker_update_clients(void){
 	while (running){
 
@@ -213,26 +182,48 @@ void worker_update_clients(void){
 }
 
 /*
-void worker_update_docks(void){
-	while (running){
-		// Iterate through every dock and pass messages on to the client
+Notify the Discovery service of the Daemon IP address(es)
 
-		auto start = std::chrono::high_resolution_clock::now();
-
-		flotilla.update_docks();
-
-		auto elapsed = std::chrono::high_resolution_clock::now() - start;
-
-		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-
-		//std::this_thread::sleep_for(std::chrono::microseconds(100000 - microseconds));
-		std::this_thread::sleep_for(std::chrono::microseconds(1000 - microseconds));
+This worker function will call the IPV4 discovery functions
+every NOTIFY_INTERVAL seconds. We count the seconds instead
+of sleeping to avoid blocking ".join" when we want to exit.
+*/
+void worker_ip_notify(void) {
+	static int seconds = 0;
+	while (running) {
+		if (seconds > NOTIFY_INTERVAL) {
+			seconds = 0;
+		}
+		if (seconds == 0) {
+			discover_ipv4();
+		}
+		seconds++;
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 	return;
 }
+
+/*
+Scan for new docks
+
+This worker function, designed to be run in a thread calls the
+function which checks connected USB devices for Flotilla Docks
 */
+void worker_dock_scan(void) {
+	while (running) {
+		update_connected_docks();
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+	return;
+}
 
 #if defined(__linux__) || defined(__APPLE__)
+/*
+Daemonize Flotilla
+
+Currently Linux/OSX only. This function double-forks Flotilla
+and redirects stdout and stderr into a log file.
+*/
 void daemonize(){
     if (pid_t pid = fork())
     {
@@ -441,16 +432,16 @@ int main(int argc, char *argv[])
 
 	flotilla.setup_server(flotilla_port);
 
-	msg << GetTimestamp() << "Baud rate " << BAUD_RATE << std::endl;
-	msg << GetTimestamp() << "Listening on port " << flotilla_port << std::endl;
-	msg << GetTimestamp() << "Flotilla ready to set sail..." << std::endl;
+	msg << GetTimestamp() << "Baud rate: " << BAUD_RATE << std::endl;
+	msg << GetTimestamp() << "WS Port: " << flotilla_port << std::endl;
+	msg << GetTimestamp() << "Flotilla ready to set sail" << std::endl;
 	std::cout << msg.str();
 	msg.str("");
 	msg.clear();
 
 	flotilla.start_server();
 
-	msg << GetTimestamp() << "Websocket Server Stopped, Cleaning Up..." << std::endl;
+	msg << GetTimestamp() << "Server Stopped, Cleaning Up..." << std::endl;
 	std::cout << msg.str();
 	msg.str("");
 	msg.clear();

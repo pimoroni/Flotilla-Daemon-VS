@@ -51,6 +51,7 @@ void Flotilla::send_to_clients(std::string command) {
 	if (websocket_server.stopped()) return;
 
 	//std::cout << GetTimestamp() << "Sending to clients: " << command << std::endl;
+	while (!mutex_clients.try_lock());
 
 	for (auto client : clients) {
 
@@ -65,6 +66,8 @@ void Flotilla::send_to_clients(std::string command) {
 		}
 
 	}
+
+	mutex_clients.unlock();
 }
 
 /* Web Sockets */
@@ -173,19 +176,32 @@ void Flotilla::websocket_on_message(websocketpp::connection_hdl hdl, websocketpp
 void Flotilla::websocket_on_open(websocketpp::connection_hdl hdl) {
 	std::cout << GetTimestamp() << "Connection Opened" << std::endl;
 	//clients.insert(std::pair<websocketpp::connection_hdl,FlotillaClient>(hdl,FlotillaClient()));
+
+	while (!mutex_clients.try_lock()) {std::this_thread::sleep_for(std::chrono::milliseconds(100));};
+
 	clients[hdl] = FlotillaClient();
+
+	mutex_clients.unlock();
 }
 
 void Flotilla::websocket_on_close(websocketpp::connection_hdl hdl) {
 	std::cout << GetTimestamp() << "Connection Closed" << std::endl;
 
+	while (!mutex_clients.try_lock()) { std::this_thread::sleep_for(std::chrono::milliseconds(100)); };
+
 	clients.erase(hdl);
+
+	mutex_clients.unlock();
 }
 
 void Flotilla::websocket_on_fail(websocketpp::connection_hdl hdl) {
 	std::cout << GetTimestamp() << "Connection Failed" << std::endl;
 
+	while (!mutex_clients.try_lock()) { std::this_thread::sleep_for(std::chrono::milliseconds(100)); };
+
 	clients.erase(hdl);
+
+	mutex_clients.unlock();
 }
 
 void Flotilla::init_client(websocketpp::connection_hdl hdl, FlotillaClient client) {

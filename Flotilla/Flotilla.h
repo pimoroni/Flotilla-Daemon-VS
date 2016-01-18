@@ -52,6 +52,7 @@ This will probably change to some method of subscribing to a particular dock
 #include <websocketpp/server.hpp>
 #include <map>
 #include <vector>
+#include <mutex>
 
 #include "Config.h"
 #include "Flotilla_Client.h"
@@ -65,9 +66,12 @@ public:
 	FlotillaDock dock[MAX_DOCKS];
 	std::map<websocketpp::connection_hdl, FlotillaClient, std::owner_less<websocketpp::connection_hdl>> clients;
 	FlotillaClient& get_client_from_hdl(websocketpp::connection_hdl hdl);
+
 	void setup_server(int flotilla_port);
 	void stop_server();
 	void start_server();
+
+	std::mutex mutex_clients;
 	void send_to_clients(std::string command);
 	void update_docks();
 	void update_clients();

@@ -16,10 +16,11 @@
 
 #define NOTIFY_REQUEST_HOST "discover.flotil.la"
 #define NOTIFY_REQUEST_PORT "80"
-#define NOTIFY_INTERVAL 300  // 3600 = 1hr
+#define NOTIFY_INTERVAL 3600  // 3600 = 1hr
 #define NOTIFY_ENABLE
 
 //#define _DISCOVERY_DEBUG
+//#define DEBUG_SCAN_FOR_HOST
 
 #ifndef TRUE
 #define TRUE  (1==1)

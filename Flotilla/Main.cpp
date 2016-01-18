@@ -60,6 +60,9 @@ void update_connected_docks() {
 		const char* a = sp_get_port_name(flotilla.dock[x].port);
 		bool found = false;
 
+		//std::cout << GetTimestamp() << "Checking serial port " << a << std::endl;
+
+		y = 0;
 		while (ports[y] != NULL) {
 			struct sp_port* port = ports[y];
 			const char * b = sp_get_port_name(port);
@@ -67,7 +70,7 @@ void update_connected_docks() {
 
 			sp_get_port_usb_vid_pid(port, &usb_vid, &usb_pid);
 
-			//std::cout << GetTimestamp() << "Checking serial port " << b << std::endl;
+			//std::cout << GetTimestamp() << "Comparing serial port " << b << std::endl;
 
 			if (b != NULL && usb_vid == VID && usb_pid == PID && strcmp(a, b) == 0) {
 				//std::cout << GetTimestamp() << "Found dock " << flotilla.dock[x].name << std::endl;

@@ -19,6 +19,8 @@
 #define NOTIFY_INTERVAL 300  // 3600 = 1hr
 #define NOTIFY_ENABLE
 
+//#define _DISCOVERY_DEBUG
+
 #ifndef TRUE
 #define TRUE  (1==1)
 #endif

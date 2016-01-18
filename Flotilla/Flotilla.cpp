@@ -50,7 +50,9 @@ void Flotilla::send_to_clients(std::string command) {
 
 	if (websocket_server.stopped()) return;
 
-	//std::cout << GetTimestamp() << "Sending to clients: " << command << std::endl;
+#ifdef DEBUG_TRANSPORT
+	std::cout << GetTimestamp() << "Sending to clients: " << command << std::endl;
+#endif
 	while (!mutex_clients.try_lock());
 
 	for (auto client : clients) {

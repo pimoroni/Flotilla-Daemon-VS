@@ -29,7 +29,9 @@ using boost::lambda::var;
 using boost::lambda::_1;
 
 #ifdef _WIN32
-
+#ifndef INET_ADDRSTRLEN
+#define INET_ADDRSTRLEN 16
+#endif
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0600
 #endif
@@ -64,7 +66,7 @@ bool win_enumerate_ipv4(std::vector<std::string> &ipv4_addresses)
 		for (ua = aa->FirstUnicastAddress; ua != NULL; ua = ua->Next) {
 			if (ua->Address.lpSockaddr->sa_family == AF_INET) {
 
-				char buf[16]; // Getnameinfo requires "char" type
+				char buf[INET_ADDRSTRLEN]; // Getnameinfo requires "char" type
 
 				getnameinfo(ua->Address.lpSockaddr, ua->Address.iSockaddrLength, buf, sizeof(buf), NULL, 0, NI_NUMERICHOST);
 
@@ -77,11 +79,7 @@ bool win_enumerate_ipv4(std::vector<std::string> &ipv4_addresses)
 					continue;
 				}
 
-				std::ostringstream ipv4_addr;
-
-				ipv4_addr << buf;
-
-				ipv4_addresses.push_back(ipv4_addr.str());
+				ipv4_addresses.push_back(std::string(buf));
 			}
 		}
 	}
@@ -115,39 +113,31 @@ bool lin_enumerate_ipv4(std::vector<std::string> &ipv4_addresses)
 	ifaddrs* ifap = NULL;
 
 	int result = getifaddrs(&ifap);
-
 	if(result != 0){
 		// Non-zero result is an error
 		return false;
 	}
 
-	ifaddrs* current = ifap;
+	ifaddrs* current;
 
-	if(current == NULL){
-		// No interface found
-		return false;
-	}
-
-	while (current != NULL){
-
+	for (current = ifap; current != nullptr; current = current->ifa_next){
+		if( current->ifa_addr == nullptr ){
+			continue;
+		}
 		if( current->ifa_addr->sa_family == AF_INET){
 			const sockaddr_in* if_addr = reinterpret_cast<const sockaddr_in*>(current->ifa_addr);
+			char buf[INET_ADDRSTRLEN]; // 255.255.255.255\n
+			inet_ntop(AF_INET, &(if_addr->sin_addr), buf, INET_ADDRSTRLEN);
 
-			int addr = ntohl(if_addr->sin_addr.s_addr);
-
-			if( ((addr >> 24) & 0xFF) != 169 && ((addr >> 24) & 0xFF) != 127 ){
-
-				std::ostringstream ipv4_addr;
-
-				ipv4_addr << ((addr >> 24) & 0xFF) << '.' << ((addr >> 16) & 0xFF) << '.' << ((addr >> 8) & 0xFF) << '.' << (addr & 0xFF);
-
-				ipv4_addresses.push_back(ipv4_addr.str());
-
+			if ((buf[0] == '1' && buf[1] == '6' && buf[2] == '9')
+			 || (buf[0] == '1' && buf[1] == '2' && buf[2] == '7')) {
+				continue;
 			}
+
+			ipv4_addresses.push_back(std::string(buf));
 
 		}
 
-		current = current->ifa_next;
 	}
 
 	return ipv4_addresses.size() > 0;;

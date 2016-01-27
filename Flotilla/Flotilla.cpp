@@ -227,6 +227,7 @@ void Flotilla::init_client(websocketpp::connection_hdl hdl, FlotillaClient clien
 		}
 
 	}
+	websocket_server.send(hdl, "# Done", websocketpp::frame::opcode::text);
 }
 
 void for_each_port(void(*handle_port)(struct sp_port* port)) {

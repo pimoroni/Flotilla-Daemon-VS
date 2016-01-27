@@ -109,6 +109,7 @@ void FlotillaDock::process_command(std::string command) {
 			std::ostringstream msg;
 			msg << GetTimestamp() << "Dock: " << index << ", User Name: " << user << std::endl;
 			std::cout << msg.str();
+
 			return;
 		}
 		if (command.find("Dock: ") != std::string::npos) {
@@ -323,7 +324,8 @@ std::string FlotillaDock::ident(){
 	stream << version << ",";
 	stream << serial << ",";
 	stream << user << ",";
-	stream << name;
+	stream << name << ",";
+	stream << index;
 
 	return stream.str();
 }

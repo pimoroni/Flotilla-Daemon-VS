@@ -102,6 +102,25 @@ void FlotillaDock::process_command(std::string command) {
 
 	switch (command.at(0)) {
 	case '#': {
+
+		if (command.find("User: ") != std::string::npos) {
+			user = command.substr(8);
+
+			std::ostringstream msg;
+			msg << GetTimestamp() << "Dock: " << index << ", User Name: " << user << std::endl;
+			std::cout << msg.str();
+			return;
+		}
+		if (command.find("Dock: ") != std::string::npos) {
+			name = command.substr(8);
+
+			std::ostringstream msg;
+			msg << GetTimestamp() << "Dock: " << index << ", Dock Name: " << name << std::endl;
+			std::cout << msg.str();
+
+			return;
+		}
+
 		std::ostringstream msg;
 		msg << GetTimestamp() << "Dock: " << index << ", Debug: " << command.substr(2) << std::endl;
 		std::cout << msg.str();

@@ -299,7 +299,7 @@ private:
 };
 
 
-int http_notify_ipv4(std::string ipv4) {
+bool http_notify_ipv4(std::string ipv4) {
 
 	try
 	{

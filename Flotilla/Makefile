@@ -15,7 +15,7 @@ $(BUILDDIR):
 	mkdir -p $(BUILDDIR)
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $(BUILDDIR)/$@
+	$(CC) $(OBJECTS) $(LDFLAGS) -o $(BUILDDIR)/$@
 
 $(BUILDDIR)/%.o: %.cpp
 	$(CC) $(CFLAGS) -o $@ $<

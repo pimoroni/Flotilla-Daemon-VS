@@ -60,7 +60,10 @@ void Flotilla::send_to_clients(std::string command, int dock_idx) {
 		if (!client.second.ready) continue;
 		if (!client.second.subscribed_to(dock_idx)) continue;
 
+#ifdef DEBUG_TRANSPORT
 		std::cout << GetTimestamp() << "Sending: " << command << " From Dock:" << dock_idx << std::endl;
+#endif
+
 		try {
 			websocket_server.send(client.first, command, websocketpp::frame::opcode::text);
 		}

@@ -23,6 +23,7 @@
 
 //#define _DISCOVERY_DEBUG
 //#define DEBUG_SCAN_FOR_HOST
+//#define DEBUG_TRANSPORT
 
 #ifndef TRUE
 #define TRUE  (1==1)

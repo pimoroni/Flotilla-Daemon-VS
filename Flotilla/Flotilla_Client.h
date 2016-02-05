@@ -27,9 +27,9 @@ public:
 		std::swap(command_queue, src.command_queue);
 		return *this;
 	};
-	bool FlotillaClient::subscribed_to(int dock_idx);
-	void FlotillaClient::subscribe(int dock_idx);
-	void FlotillaClient::unsubscribe(int dock_idx);
+	bool subscribed_to(int dock_idx);
+	void subscribe(int dock_idx);
+	void unsubscribe(int dock_idx);
 private:
 	void empty_queue(void);
 	std::mutex mutex;

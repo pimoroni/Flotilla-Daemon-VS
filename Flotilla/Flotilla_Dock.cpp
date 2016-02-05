@@ -283,7 +283,7 @@ std::string FlotillaDock::get_next_command(int channel){
 	std::string command = module[channel].get_next_command();
 
 	if (!command.empty()){
-		stream << "h:" << index << " d:u " << channel << "/" << module[channel].name << " " << command;
+		stream << "Dock:" << index << " Data:u " << channel << "/" << module[channel].name << " " << command;
 	}
 
 	return stream.str();
@@ -333,7 +333,7 @@ std::string FlotillaDock::ident(){
 std::string FlotillaDock::module_event(int channel){
 	std::ostringstream stream;
 
-	stream << "h:" << index << "d:";
+	stream << "Dock:" << index << " Data:";
 
 	if (module[channel].state == ModuleConnected){
 		stream << "c";

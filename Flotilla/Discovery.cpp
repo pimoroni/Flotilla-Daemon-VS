@@ -356,7 +356,7 @@ bool http_notify_ipv4(std::string ipv4) {
 
 }
 
-int discover_ipv4()
+int discover_ipv4(std::string &canonical_address)
 {
 	std::vector<std::string> ipv4_addresses;
 	int result;
@@ -364,7 +364,7 @@ int discover_ipv4()
 #ifdef _WIN32
 	WSAData d;
 	if (WSAStartup(MAKEWORD(2, 2), &d) != 0) {
-		return -1;
+		return 0;
 	}
 	result = win_enumerate_ipv4(ipv4_addresses);
 	WSACleanup();
@@ -375,6 +375,7 @@ int discover_ipv4()
 
 	int notify_count = 0;
 	if (result > 0) {
+		canonical_address = ipv4_addresses.front();
 		for (auto ipv4_address : ipv4_addresses) {
 			if (discover_addr(ipv4_address)) {
 				notify_count++;
@@ -382,5 +383,5 @@ int discover_ipv4()
 		}
 	}
 
-	return notify_count > 0;
+	return ipv4_addresses.size();
 }

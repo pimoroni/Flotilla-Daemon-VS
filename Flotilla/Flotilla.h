@@ -64,15 +64,18 @@ class Flotilla {
 public:
 	Flotilla();
 	FlotillaDock dock[MAX_DOCKS];
-	std::map<websocketpp::connection_hdl, FlotillaClient, std::owner_less<websocketpp::connection_hdl>> clients;
+	typedef std::map<websocketpp::connection_hdl, FlotillaClient, std::owner_less<websocketpp::connection_hdl>> client_list;
+	client_list clients;
 	FlotillaClient& get_client_from_hdl(websocketpp::connection_hdl hdl);
+
+	std::string canonical_address;
 
 	void setup_server(int flotilla_port);
 	void stop_server();
 	void start_server();
 
 	std::mutex mutex_clients;
-	void send_to_clients(std::string command);
+	void send_to_clients(std::string command, int dock_idx);
 	void update_docks();
 	void update_clients();
 

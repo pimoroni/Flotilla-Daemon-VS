@@ -198,7 +198,7 @@ void worker_ip_notify(void) {
 			seconds = 0;
 		}
 		if (seconds == 0) {
-			discover_ipv4();
+			discover_ipv4(flotilla.canonical_address);
 		}
 		seconds++;
 		std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -375,6 +375,9 @@ int main(int argc, char *argv[])
 
 		if (vm.count("no-discover")) {
 			should_discover = !vm["no-discover"].as<bool>();
+			if (!should_discover) {
+				flotilla.canonical_address = "";
+			}
 		}
 
 	    if (vm.count("port")) { 

@@ -81,11 +81,11 @@ void FlotillaDock::tick(){
 			msg << GetTimestamp() << "Sending to dock: " << update << std::endl;
 			std::cout << msg.str();
 #endif
-
+			while (sp_output_waiting(port) > 0) {};
 			sp_blocking_write(port, update.c_str(), update.length(), 0);
 			sp_blocking_write(port, "\r", 1, 0);
 
-			//std::this_thread::sleep_for(std::chrono::microseconds(100000));
+			std::this_thread::sleep_for(std::chrono::microseconds(10000));
 
 		}
 	}
@@ -102,6 +102,26 @@ void FlotillaDock::process_command(std::string command) {
 
 	switch (command.at(0)) {
 	case '#': {
+
+		if (command.find("User: ") != std::string::npos) {
+			user = command.substr(8);
+
+			std::ostringstream msg;
+			msg << GetTimestamp() << "Dock: " << index << ", User Name: " << user << std::endl;
+			std::cout << msg.str();
+
+			return;
+		}
+		if (command.find("Dock: ") != std::string::npos) {
+			name = command.substr(8);
+
+			std::ostringstream msg;
+			msg << GetTimestamp() << "Dock: " << index << ", Dock Name: " << name << std::endl;
+			std::cout << msg.str();
+
+			return;
+		}
+
 		std::ostringstream msg;
 		msg << GetTimestamp() << "Dock: " << index << ", Debug: " << command.substr(2) << std::endl;
 		std::cout << msg.str();
@@ -263,7 +283,7 @@ std::string FlotillaDock::get_next_command(int channel){
 	std::string command = module[channel].get_next_command();
 
 	if (!command.empty()){
-		stream << "h:" << index << " d:u " << channel << "/" << module[channel].name << " " << command;
+		stream << "Dock:" << index << " Data:u " << channel << "/" << module[channel].name << " " << command;
 	}
 
 	return stream.str();
@@ -304,7 +324,8 @@ std::string FlotillaDock::ident(){
 	stream << version << ",";
 	stream << serial << ",";
 	stream << user << ",";
-	stream << name;
+	stream << name << ",";
+	stream << index;
 
 	return stream.str();
 }
@@ -312,7 +333,7 @@ std::string FlotillaDock::ident(){
 std::string FlotillaDock::module_event(int channel){
 	std::ostringstream stream;
 
-	stream << "h:" << index << "d:";
+	stream << "Dock:" << index << " Data:";
 
 	if (module[channel].state == ModuleConnected){
 		stream << "c";

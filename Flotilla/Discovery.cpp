@@ -150,7 +150,7 @@ bool lin_enumerate_ipv4(std::vector<std::string> &ipv4_addresses)
 		current = current->ifa_next;
 	}
 
-	return ipv4_addresses.size() > 0;;
+	return ipv4_addresses.size() > 0;
 }
 
 #endif

@@ -81,11 +81,11 @@ void FlotillaDock::tick(){
 			msg << GetTimestamp() << "Sending to dock: " << update << std::endl;
 			std::cout << msg.str();
 #endif
-
+			while (sp_output_waiting(port) > 0) {};
 			sp_blocking_write(port, update.c_str(), update.length(), 0);
 			sp_blocking_write(port, "\r", 1, 0);
 
-			//std::this_thread::sleep_for(std::chrono::microseconds(100000));
+			std::this_thread::sleep_for(std::chrono::microseconds(10000));
 
 		}
 	}

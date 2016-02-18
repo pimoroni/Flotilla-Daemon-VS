@@ -313,14 +313,13 @@ void daemonize(){
 int main(int argc, char *argv[])
 {
 	running = 1;
-	std::ostringstream msg;
-	msg << GetTimestamp() << "Flotilla starting..." << std::endl;
-	std::cout << msg.str();
-	msg.str("");
-	msg.clear();
 
 	try {
-		options_description desc("Flotilla Server\nAvailable options");
+		std::ostringstream banner;
+		banner << "Flotilla Server v" << DAEMON_VERSION_STRING << std::endl << std::endl << "Available options:";
+		options_description desc(banner.str());
+		banner.str("");
+		banner.clear();
 
 	    desc.add_options()
 	        ("help,h", "Print this usage message")
@@ -332,14 +331,20 @@ int main(int argc, char *argv[])
 	    	("no-daemon,d", bool_switch(), "Prevent Flotilla from running as a daemon")
 	    	("verbose,v", bool_switch(&be_verbose), "Start Flotilla verbosely")
 #endif
+	    	("version,V", "Display Flotilla version")
 			;
 
 		variables_map vm;
 	    store(parse_command_line(argc, argv, desc), vm);
 
 	    if (vm.count("help")) {  
-	        std::cout << GetTimestamp() << desc << "\n";
+	        std::cout << desc << "\n";
 	        return 0;
+	    }
+
+	    if (vm.count("version")) {
+	    	std::cout << "Flotilla Server v" << DAEMON_VERSION_STRING << std::endl;
+	    	return 0;
 	    }
 
 	    if (vm.count("pid-file")) {
@@ -420,6 +425,12 @@ int main(int argc, char *argv[])
 
 	signal(SIGINT, sigint_handler);
 	signal(SIGTERM, sigint_handler);
+
+	std::ostringstream msg;
+	msg << GetTimestamp() << "Flotilla v" << DAEMON_VERSION_STRING << " starting..." << std::endl;
+	std::cout << msg.str();
+	msg.str("");
+	msg.clear();
 
 	if (should_discover) {
 		msg << GetTimestamp() << "Discovery Service Enabled" << std::endl;

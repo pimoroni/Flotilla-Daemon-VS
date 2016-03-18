@@ -2,7 +2,7 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
-#define DAEMON_VERSION_STRING "1.1"
+#define DAEMON_VERSION_STRING "1.12"
 
 #define MAX_DOCKS 8
 #define MAX_CHANNELS 8
@@ -23,7 +23,7 @@
 
 //#define _DISCOVERY_DEBUG
 //#define DEBUG_SCAN_FOR_HOST
-#define DEBUG_TRANSPORT
+//#define DEBUG_TRANSPORT
 
 #ifndef TRUE
 #define TRUE  (1==1)

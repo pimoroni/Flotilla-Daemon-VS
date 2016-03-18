@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
 {
 	running = 1;
 	std::ostringstream msg;
-	msg << GetTimestamp() << "Flotilla starting..." << std::endl;
+	msg << GetTimestamp() << "Flotilla v" << DAEMON_VERSION_STRING << " starting..." << std::endl;
 	std::cout << msg.str();
 	msg.str("");
 	msg.clear();

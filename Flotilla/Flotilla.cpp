@@ -151,7 +151,7 @@ void Flotilla::websocket_on_message(websocketpp::connection_hdl hdl, websocketpp
 			// All commmands addressed at a specific dock should be processed, so add them to a fifo
 			dock[dock_index].queue_command(data);
 
-			//std::cout << GetTimestamp() << "Pushing " << data  << " to dock " << dock_index << std::endl;
+			std::cout << GetTimestamp() << "Pushing " << data  << " to dock " << dock_index << std::endl;
 		}
 
 		return;
@@ -271,7 +271,7 @@ void Flotilla::init_client(websocketpp::connection_hdl hdl, FlotillaClient clien
 		if (dock[dock_idx].state != Connected) continue;
 
 		std::cout << GetTimestamp() << "Sending Ident: " << dock[dock_idx].ident() << std::endl;
-		websocket_server.send(hdl, dock[dock_idx].ident(), websocketpp::frame::opcode::text);
+		websocket_server.send(hdl, dock[dock_idx].ident(), websocketpp::frame::opcode::BINARY);
 
 		for (channel_idx = 0; channel_idx < MAX_CHANNELS; channel_idx++) {
 

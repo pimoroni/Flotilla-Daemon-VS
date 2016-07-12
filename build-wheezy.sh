@@ -2,7 +2,7 @@
 
 sudo apt-get update
 
-sudo apt-get --yes --force-yes install git cmake gcc-4.8 g++-4.8 automake autoconf libtool libboost1.50-dev libboost-system1.50-dev
+sudo apt-get --yes --force-yes install git cmake gcc-4.8 g++-4.8 automake autoconf libtool libboost1.50-dev libboost-system1.50-dev libboost-thread1.50-dev libboost-program-options1.50-dev libboost-filesystem1.50-dev
 
 git clone --depth=1 git://sigrok.org/libserialport
 cd libserialport
@@ -21,6 +21,6 @@ make
 sudo make install
 cd ../../
 
-git clone --depth=1 https://github.com/pimoroni/flotilla-daemon-vs
+git clone --depth=1 https://github.com/pimoroni/flotilla-daemon-vs -b ship
 cd flotilla-daemon-vs/Flotilla
 make CC=g++-4.8 DEPS=../../

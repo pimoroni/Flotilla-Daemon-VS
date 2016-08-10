@@ -1,0 +1,20 @@
+#!/bin/bash
+
+dylibbundler_path="@executable_path/../libs"
+dylibfixed_path="@executable_path/../Resources/libs"
+dyliblinked_name=( "libboost_date_time.dylib" "libboost_filesystem.dylib" "libboost_program_options.dylib" "libboost_system.dylib" "libserialport.0.dylib" )
+
+if [ -f /usr/local/bin/dylibbundler ]; then
+    dylibbundler -od -b -x ./flotilla -d ./libs
+    for dylibname in ${dyliblinked_name[@]}
+    do  echo "processing $dylibname"
+        echo "old path $dylibbundler_path/$dylibname"
+        echo "new path $dylibfixed_path/$dylibname"
+        install_name_tool -change $dylibbundler_path/$dylibname $dylibfixed_path/$dylibname ./flotilla
+        install_name_tool -id $dylibfixed_path/$dylibname ./libs/$dylibname
+    done
+else
+    echo 'dylibbundler not found'
+fi
+
+exit 0

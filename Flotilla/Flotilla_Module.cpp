@@ -1,4 +1,4 @@
-#include "Flotilla.h"
+#include "Flotilla_Module.h"
 
 FlotillaModule::FlotillaModule(){
 	state = ModuleDisconnected;
@@ -45,10 +45,19 @@ std::string FlotillaModule::get_next_command(void){
 		}
 
 		command = command_queue.front();
+
 		if (command_queue.size() > 1) {
 			command_queue.pop();
 		}
 		mutex.unlock();
+
+		if (command.compare(last_update) == 0) {
+			command = "";
+		}
+		else
+		{
+			last_update = command;
+		}
 	}
 	return command;
 }

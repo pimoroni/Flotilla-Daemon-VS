@@ -1,10 +1,9 @@
-CC = g++-4.9
-#DEPS = ../../flotilla-daemon/lib/
-DEPS = ../../flotilla-dependencies/
-LDFLAGS = -O2 -std=c++11 -I${DEPS}websocketpp/ -I${DEPS} -lserialport -lboost_system -lpthread
-CFLAGS = -O2 -c -std=c++11 -I${DEPS}websocketpp/
+CC = g++
+DEPS = ../../lib/
+LDFLAGS = -O2 -std=c++11 -L. -lserialport -lboost_system -lboost_date_time -lboost_filesystem -lboost_program_options -lpthread
+CFLAGS = -O2 -c -std=c++11 -I${DEPS}websocketpp/ -Wall
 
-SOURCES=Flotilla.cpp Flotilla_Dock.cpp Flotilla_Module.cpp Flotilla_Client.cpp Main.cpp
+SOURCES=Discovery.cpp Timestamp.cpp Flotilla.cpp Flotilla_Dock.cpp Flotilla_Module.cpp Flotilla_Client.cpp Main.cpp
 BUILDDIR=Debug
 OBJECTS=$(addprefix $(BUILDDIR)/,$(notdir $(SOURCES:.cpp=.o)))
 EXECUTABLE=flotilla

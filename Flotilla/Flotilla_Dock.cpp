@@ -1,11 +1,51 @@
-#include "Flotilla.h"
+#include <libserialport.h>
+#include <sstream>
+#include <iostream>
+
+#include "Flotilla_Dock.h"
+#include "Timestamp.h"
+
+bool sp_wait_for(struct sp_port* port, std::string wait_for) {
+
+	while (sp_output_waiting(port) > 0);
+
+	auto start = std::chrono::high_resolution_clock::now();
+
+	while (sp_readline(port).compare(wait_for) != 0) {
+		if (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() >= 100000) return false;
+	};
+
+	return true;
+
+}
+
+std::string sp_readline(struct sp_port* port) {
+
+	std::string buffer = "";
+
+	char c;
+
+	/*
+	Commands are sent from the host in hoofing great chunks one line
+	at a time, so the chances of us hitting a timeout before getting our '\n'
+	are slim.
+	*/
+
+	while (sp_blocking_read(port, &c, 1, 1000) > 0) {
+		if (c == '\n') break;
+		if (c != '\r') buffer += c;
+	}
+
+	return buffer;
+
+}
 
 FlotillaDock::FlotillaDock(void) {
 	state = Disconnected;
-}
-
-FlotillaDock::~FlotillaDock(void) {
-	//stop();
+	std::string name = "";
+	std::string user = "";
+	std::string serial = "";
+	std::string version = "";
 }
 
 void FlotillaDock::queue_command(std::string command){
@@ -33,71 +73,112 @@ void FlotillaDock::tick(){
 		if (module[channel_index].get_next_update(update)){
 
 			std::ostringstream stream;
-			stream << "s " << channel_index << " " << update;
+			stream << "s " << (channel_index + 1) << " " << update;
 			update = stream.str();
 
-			std::cout << "Sending to dock: " << update << std::endl;
-
+#ifdef DEBUG_TRANSPORT
+			std::ostringstream msg;
+			msg << GetTimestamp() << "Sending to dock: " << update << std::endl;
+			std::cout << msg.str();
+#endif
+			while (sp_output_waiting(port) > 0) {};
 			sp_blocking_write(port, update.c_str(), update.length(), 0);
 			sp_blocking_write(port, "\r", 1, 0);
 
-			std::this_thread::sleep_for(std::chrono::microseconds(100000));
+			std::this_thread::sleep_for(std::chrono::microseconds(10000));
 
 		}
 	}
 
 	while (sp_input_waiting(port) > 0){
+		process_command(sp_readline(port));
+	}
 
-		std::string::size_type size;
-		std::string command = sp_readline(port);
+}
 
-		switch (command.at(0)){
-		case '#':{
-			std::cout << "Dock: " << index << ", Debug: " << command.substr(2) << std::endl;
-		} break;
-		case 'u':{
+void FlotillaDock::process_command(std::string command) {
 
-			int channel = std::stoi(command.substr(2), &size);
+	std::string::size_type size;
+
+	switch (command.at(0)) {
+	case '#': {
+
+		if (command.find("User: ") != std::string::npos) {
+			user = command.substr(8);
+
+			std::ostringstream msg;
+			msg << GetTimestamp() << "Dock: " << index << ", User Name: " << user << std::endl;
+			std::cout << msg.str();
+
+			return;
+		}
+		if (command.find("Dock: ") != std::string::npos) {
+			name = command.substr(8);
+
+			std::ostringstream msg;
+			msg << GetTimestamp() << "Dock: " << index << ", Dock Name: " << name << std::endl;
+			std::cout << msg.str();
+
+			return;
+		}
+
+		std::ostringstream msg;
+		msg << GetTimestamp() << "Dock: " << index << ", Debug: " << command.substr(2) << std::endl;
+		std::cout << msg.str();
+	} break;
+	case 'u': {
+
+		int channel = std::stoi(command.substr(2), &size) - 1;
+
+		if (channel < MAX_CHANNELS) {
 
 			std::string data = command.substr(size + 4 + module[channel].name.length());
 
 			// Oh my! cout is messy and ugly and slow, there are good arguments for it, but I'm a big boy and can handle printf!
-			//std::cout << "Dock: " << index << ", Channel: " << channel << ", Name: " << module[channel].name << " Data: " << data << std::endl;
+			//std::cout << GetTimestamp() << "Dock: " << index << ", Channel: " << channel << ", Name: " << module[channel].name << " Data: " << data << std::endl;
 			//printf("Dock: %d, Channel: %d, Name: %s, Data: %s\n", index, channel, module[channel].name.c_str(), data.c_str());
 
 			module[channel].queue_command(data);
+		}
 
-		} break;
-		case 'd':{ // Module Disconnect
+	} break;
+	case 'd': { // Module Disconnect
 
-			int channel = std::stoi(command.substr(2), &size);
+		int channel = std::stoi(command.substr(2), &size) - 1;
+
+		if (channel < MAX_CHANNELS) {
 
 			std::string name = command.substr(size + 3);
 
-			std::cout << "Dock " << index << ", Ch " << channel << " Lost Module: " << name << std::endl;
+			std::ostringstream msg;
+			msg << GetTimestamp() << "Dock " << index << ", Ch " << channel << " Lost: " << name << std::endl;
+			std::cout << msg.str();
 
 			module[channel].disconnect();
 			queue_module_event(channel);
 
-		} break;
-		case 'c':{ // Module Connect
+		}
 
-			int channel = std::stoi(command.substr(2), &size);
+	} break;
+	case 'c': { // Module Connect
+
+		int channel = std::stoi(command.substr(2), &size) - 1;
+
+		if (channel < MAX_CHANNELS) {
 
 			std::string name = command.substr(size + 3);
 
-			std::cout << "Dock " << index << ", Ch " << channel << " New Module: " << name << std::endl;
+			std::ostringstream msg;
+			msg << GetTimestamp() << "Dock " << index << ", Ch " << channel << " Found: " << name << std::endl;
+			std::cout << msg.str();
 
 			module[channel].connect(name);
 			queue_module_event(channel);
 
-		} break;
 		}
 
-		command.clear();
-
+	} break;
 	}
-
 }
 
 void FlotillaDock::disconnect(void){
@@ -113,23 +194,25 @@ void FlotillaDock::disconnect(void){
 		}
 	}
 
-	//while(sp_output_waiting(port) > 0);
-	//while(sp_input_waiting(port) > 0);
-
 	sp_flush(port, SP_BUF_OUTPUT);
 	sp_flush(port, SP_BUF_INPUT);
 
 	sp_close(port);
 	sp_free_port(port);
-	std::cout << "Dock Disconnected, serial " << serial << std::endl;
+
+	std::ostringstream msg;
+	msg << GetTimestamp() << "Dock Disconnected" << std::endl; // , serial " << serial << std::endl;
+	std::cout << msg.str();
 }
 
 void FlotillaDock::cmd_enumerate(void){
 
 	std::this_thread::sleep_for(std::chrono::microseconds(100000));
 	sp_blocking_write(port, "e\r", 2, 0);
-	std::cout << "Enumerating Dock, serial " << serial << "..." << std::endl;
 
+	std::ostringstream msg;
+	msg << GetTimestamp() << "Enumerating Dock" << std::endl; // , serial " << serial << "..." << std::endl;
+	std::cout << msg.str();
 }
 
 bool FlotillaDock::set_port(sp_port *new_port){
@@ -143,15 +226,6 @@ bool FlotillaDock::set_port(sp_port *new_port){
 		sp_set_baudrate(port, BAUD_RATE);
 		if (sp_open(port, SP_MODE_READ_WRITE) == SP_OK){
 			if (get_version_info()){
-				/*
-				printf("Got Version Info\n");
-				printf("Host Version: %s\n", version.c_str());
-				printf("Host Serial: %s\n",  serial.c_str());
-				printf("Host User: %s\n",    user.c_str());
-				printf("Host Name: %s\n",    name.c_str());
-				*/
-
-				//cmd_enumerate();
 
 				state = Connected;
 
@@ -159,16 +233,22 @@ bool FlotillaDock::set_port(sp_port *new_port){
 			}
 			else
 			{
-				std::cout << "Flotilla_Dock.cpp: Failed to get version information..." << std::endl;
+				std::ostringstream msg;
+				msg << GetTimestamp() << "Warning: Failed to get dock version information" << std::endl;
+				std::cout << msg.str();
 			}
 		}
 		else
 		{
-			std::cout << "Flotilla_Dock.cpp: Failed to open port " << port_name << std::endl;
+			std::ostringstream msg;
+			msg << GetTimestamp() << "Warning: Failed to open port " << port_name << std::endl;
+			std::cout << msg.str();
 		}
 	}
 	else{
-		std::cout << "Flotilla_Dock.cpp: Failed to copy port!?..." << std::endl;
+		std::ostringstream msg;
+		msg << GetTimestamp() << "Warning: Failed to copy port!?" << std::endl;
+		std::cout << msg.str();
 	}
 
 	state = Disconnected;
@@ -203,7 +283,7 @@ std::string FlotillaDock::get_next_command(int channel){
 	std::string command = module[channel].get_next_command();
 
 	if (!command.empty()){
-		stream << "h:" << index << " d:u " << channel << "/" << module[channel].name << " " << command;
+		stream << "Dock:" << index << " Data:u " << channel << "/" << module[channel].name << " " << command;
 	}
 
 	return stream.str();
@@ -244,7 +324,8 @@ std::string FlotillaDock::ident(){
 	stream << version << ",";
 	stream << serial << ",";
 	stream << user << ",";
-	stream << name;
+	stream << name << ",";
+	stream << index;
 
 	return stream.str();
 }
@@ -252,7 +333,7 @@ std::string FlotillaDock::ident(){
 std::string FlotillaDock::module_event(int channel){
 	std::ostringstream stream;
 
-	stream << "h:" << index << "d:";
+	stream << "Dock:" << index << " Data:";
 
 	if (module[channel].state == ModuleConnected){
 		stream << "c";
@@ -286,12 +367,12 @@ bool FlotillaDock::get_version_info(){
 
 	Can be tested simply by sending v\rv\r  in one transaction, this *should* return the version
 	information twice, but the dock is dropping/ignoring the second request?
+
+	Update: Fixed the dock in many ways to sideline module commands using an alternate parsing method
+	however, rapid subsequent system commands like v ( version ), d ( debug ) will still make for
+	an uphappy dock!
 	*/
 
-	std::cout << std::endl << std::endl << "Flotilla_Dock.cpp: Sending Version Request..." << std::endl;
-
-	//sp_flush(port, SP_BUF_OUTPUT);
-	//sp_flush(port, SP_BUF_INPUT);
 	while (sp_output_waiting(port) > 0);
 
 	std::this_thread::sleep_for(std::chrono::microseconds(100000));
@@ -302,28 +383,47 @@ bool FlotillaDock::get_version_info(){
 		return false;
 	}
 
+	std::ostringstream msg;
+	msg << GetTimestamp() << "Dock Connected" << std::endl;
+	std::cout << msg.str();
+	msg.str(""); msg.clear();
+
 	for (x = 0; x < 4; x++){
 		std::string line = sp_readline(port);
 		std::string::size_type position;
-
-		std::cout << "Got " << line << std::endl;
 
 		if (line.length() > 0 && line.at(0) == '#'){
 
 			if ((position = line.find("Version: ")) != std::string::npos){
 				version = line.substr(position + 9);
+
+				std::ostringstream report;
+				report << GetTimestamp() << "Version: " << version << std::endl;
+				std::cout << report.str();
 			}
 
 			if ((position = line.find("Serial: ")) != std::string::npos){
 				serial = line.substr(position + 8);
+
+				std::ostringstream report;
+				report << GetTimestamp() << "Serial: " << serial << std::endl;
+				std::cout << report.str();
 			}
 
 			if ((position = line.find("User: ")) != std::string::npos){
 				user = line.substr(position + 6);
+
+				std::ostringstream report;
+				report << GetTimestamp() << "User: " << user << std::endl;
+				std::cout << report.str();
 			}
 
 			if ((position = line.find("Dock: ")) != std::string::npos){
 				name = line.substr(position + 6);
+
+				std::ostringstream report;
+				report << GetTimestamp() << "Name: " << name << std::endl;
+				std::cout << report.str();
 			}
 
 		}

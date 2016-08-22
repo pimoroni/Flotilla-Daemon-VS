@@ -2,7 +2,7 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
-#define DAEMON_VERSION_STRING "1.12"
+#define DAEMON_VERSION_STRING "1.13"
 
 #define MAX_DOCKS 8
 #define MAX_CHANNELS 8

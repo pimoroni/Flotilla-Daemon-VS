@@ -13,6 +13,8 @@
 #define VID 0x16D0 //1003
 #define FLOTILLA_PORT 9395
 
+#define CLIENT_UPDATE_RATE 5000
+
 #define PID_FILE_PATH "/var/run/flotilla.pid"
 #define LOG_FILE_PATH "/var/log/flotilla.log"
 

@@ -179,7 +179,9 @@ void worker_update_clients(void){
 		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
 
 		// This should approximately match the interval of rockpool.updateLoop
-		std::this_thread::sleep_for(std::chrono::microseconds(50000 - microseconds));
+		if (CLIENT_UPDATE_RATE - microseconds > 0) {
+			std::this_thread::sleep_for(std::chrono::microseconds(CLIENT_UPDATE_RATE - microseconds));
+		}
 	}
 	return;
 }

@@ -137,6 +137,8 @@ void Flotilla::websocket_on_message(websocketpp::connection_hdl hdl, websocketpp
 
 			int channel_index = std::stoi(data, &channel_offset) - 1;
 
+			if (channel_index < 0 || channel_index >= MAX_CHANNELS) return;
+
 			data = data.substr(channel_offset + 1);
 
 			dock[dock_index].module[channel_index].queue_update(data);
@@ -164,7 +166,8 @@ void Flotilla::websocket_on_message(websocketpp::connection_hdl hdl, websocketpp
 		try {
 			dock_index = std::stoi(payload.substr(cmd_subs.size(), 2));
 		}
-		catch (std::exception const & e) {
+		catch (std::exception const &e) {
+			(void)e; //Suppress unreferenced warnings
 			return;
 		}
 
@@ -184,7 +187,8 @@ void Flotilla::websocket_on_message(websocketpp::connection_hdl hdl, websocketpp
 		try {
 			dock_index = std::stoi(payload.substr(cmd_usub.size(), 2));
 		}
-		catch (std::exception const & e) {
+		catch (std::exception const &e) {
+			(void)e; //Suppress unreferenced warnings
 			return;
 		}
 

@@ -3,6 +3,15 @@
 #include "Timestamp.h"
 #include "Discovery.h"
 
+#if defined(_WIN32) && defined(WINDOWS_SERVICE)
+SERVICE_STATUS	g_ServiceStatus = { 0 };
+SERVICE_STATUS_HANDLE g_StatusHandle = { 0 };
+#define SERVICE_NAME "Flotilla Service"
+
+VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv);
+VOID WINAPI ServiceCtrlHandler(DWORD);
+#endif
+
 using namespace boost::program_options;
 using namespace boost::filesystem;
 
@@ -12,6 +21,113 @@ int flotilla_port = FLOTILLA_PORT;
 bool should_daemonize = true;
 bool should_discover = true;
 bool be_verbose = false;
+
+#if defined(_WIN32) && defined(WINDOWS_SERVICE)
+VOID WINAPI ServiceCtrlHandler(DWORD CtrlCode)
+{
+	switch (CtrlCode)
+	{
+	case SERVICE_CONTROL_STOP:
+	case SERVICE_CONTROL_SHUTDOWN:
+
+		if (g_ServiceStatus.dwCurrentState != SERVICE_RUNNING)
+			break;
+
+		/*
+		* Perform tasks necessary to stop the service here
+		*/
+
+		sigint_handler(0);
+
+		g_ServiceStatus.dwControlsAccepted = 0;
+		g_ServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
+		g_ServiceStatus.dwWin32ExitCode = 0;
+		g_ServiceStatus.dwCheckPoint = 4;
+
+		if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE)
+		{
+			OutputDebugString("Flotilla Service: ServiceCtrlHandler: SetServiceStatus returned error");
+		}
+
+		break;
+
+	default:
+		break;
+	}
+}
+
+VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv)
+{
+	DWORD Status = E_FAIL;
+
+	// Register our service control handler with the SCM
+	g_StatusHandle = RegisterServiceCtrlHandler(SERVICE_NAME, ServiceCtrlHandler);
+
+	if (g_StatusHandle == NULL)
+	{
+		goto EXIT;
+	}
+
+	// Tell the service controller we are starting
+	ZeroMemory(&g_ServiceStatus, sizeof(g_ServiceStatus));
+	g_ServiceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
+	g_ServiceStatus.dwControlsAccepted = 0;
+	g_ServiceStatus.dwCurrentState = SERVICE_START_PENDING;
+	g_ServiceStatus.dwWin32ExitCode = 0;
+	g_ServiceStatus.dwServiceSpecificExitCode = 0;
+	g_ServiceStatus.dwCheckPoint = 0;
+
+	if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE)
+	{
+		OutputDebugString("Flotilla Service: ServiceMain: SetServiceStatus returned error");
+	}
+
+	/*
+	* Perform tasks necessary to start the service here
+	*/
+
+	running = 1;
+	thread_ip_notify = std::thread(worker_ip_notify);
+	thread_dock_scan = std::thread(worker_dock_scan);
+	thread_update_clients = std::thread(worker_update_clients);
+	flotilla.setup_server(flotilla_port);
+
+	// Tell the service controller we are started
+	g_ServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP;
+	g_ServiceStatus.dwCurrentState = SERVICE_RUNNING;
+	g_ServiceStatus.dwWin32ExitCode = 0;
+	g_ServiceStatus.dwCheckPoint = 0;
+
+	if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE)
+	{
+		OutputDebugString("Flotilla Service: ServiceMain: SetServiceStatus returned error");
+	}
+
+	// Start a thread that will perform the main task of the service
+
+	flotilla.start_server();
+
+	/*
+	* Perform any cleanup tasks
+	*/
+
+	cleanup();
+
+	// Tell the service controller we are stopped
+	g_ServiceStatus.dwControlsAccepted = 0;
+	g_ServiceStatus.dwCurrentState = SERVICE_STOPPED;
+	g_ServiceStatus.dwWin32ExitCode = 0;
+	g_ServiceStatus.dwCheckPoint = 3;
+
+	if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE)
+	{
+		OutputDebugString("Flotilla Service: ServiceMain: SetServiceStatus returned error");
+	}
+
+EXIT:
+	return;
+}
+#endif
 
 void cleanup(void){
 	int i;
@@ -314,6 +430,21 @@ void daemonize(){
 
 int main(int argc, char *argv[])
 {
+#if defined(_WIN32) && defined(WINDOWS_SERVICE)
+	SERVICE_TABLE_ENTRY ServiceTable[] =
+	{
+		{ SERVICE_NAME, (LPSERVICE_MAIN_FUNCTION)ServiceMain },
+		{ NULL, NULL }
+	};
+
+	if (StartServiceCtrlDispatcher(ServiceTable) == FALSE)
+	{
+		return GetLastError();
+	}
+
+	return 0;
+#endif
+
 	running = 1;
 
 	try {

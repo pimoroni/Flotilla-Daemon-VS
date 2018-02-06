@@ -1,0 +1,708 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"><?define Flotilla_TargetDir=$(var.Flotilla.TargetDir)?>
+	<Product Id="*" Name="Flotilla Desktop" Language="1033" Version="1.0.0.0" Manufacturer="Pimoroni Ltd." UpgradeCode="9de35634-0cc0-4dc2-a833-3dda92b53f29">
+		<Package 
+      Id="*"
+      Platform="x64" 
+      InstallerVersion="200" 
+      Compressed="yes" 
+      InstallScope="perMachine" 
+      Keywords="installer"
+      Manufacturer="Pimoroni Ltd"
+      Description="Flotilla Desktop (64-bit)"
+      />
+    <SetProperty Id="URL" Value="[ROCKPOOLFOLDER]/index.html" Sequence="execute"  Before="CreateShortcuts" />
+
+    <Media Id="1" Cabinet="FlotillaDesktop.cab" EmbedCab="yes" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+		<Feature Id="ProductFeature" Title="FlotillaSetup" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+			<ComponentGroupRef Id="ProgramFilesFolder_files" />
+      <ComponentGroupRef Id="ProgramFilesFolder_files_Rockpool" />
+      <ComponentRef Id="ApplicationShortcut" />
+		</Feature>
+	</Product>
+
+  <Fragment>
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut">
+        <Shortcut
+          Id="WebShortcut"
+          Name="Flotilla Rockpool"
+          Description="Open Flotilla Rockpool UI" Target="[URL]" Icon="IconDesktop"
+          WorkingDirectory="INSTALLFOLDER">
+            <Icon Id="IconDesktop" SourceFile="rockpool.ico" />
+        </Shortcut>
+        <!--<Shortcut Id="ApplicationStartMenuShortcut"
+            Name="Flotilla Desktop"
+            Description="Run Flotilla"
+            Target="[#Flotilla.exe]"
+            WorkingDirectory="INSTALLFOLDER"/>-->
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\FlotillaDesktop" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProgramFilesFolder_files_Rockpool" Directory="ROCKPOOLFOLDER">
+      <ComponentRef Id="cmpklZUjU4Bx1UmitLIN8HpOAin6Z4" />
+      <ComponentRef Id="cmpz7PLwxcgpAs.5O53Lzbg1.vpy38" />
+      <ComponentRef Id="cmpHkfawKeUwhxGTohI27bXgR.zpzA" />
+      <ComponentRef Id="cmpo12BlvzHG3X9fqefdfa7dmJnSO0" />
+      <ComponentRef Id="cmpTkIeeMH5dHfe0gmyzyY.3AZahKk" />
+      <ComponentRef Id="cmp3qikxRtbNKJDoqVZHhaxko4dHvM" />
+      <ComponentRef Id="cmpYee340TwCK0LU3uwl3RisFxD50E" />
+      <ComponentRef Id="cmpXAGPT_mntYnfTzgOvwSt1pSpfGo" />
+      <ComponentRef Id="cmp7U41qsWjswSk6mBqNtT_mQRHr1E" />
+      <ComponentRef Id="cmp3FgCSUidwmJfSgaKT1Ruyz1kCrU" />
+      <ComponentRef Id="cmpqi1k_gBy.Sm4CrUje_Y8h5TLhww" />
+      <ComponentRef Id="cmpZ9LC5enafxcVpHea9FflgAce5ro" />
+      <ComponentRef Id="cmpsmDr0cFaK88rOfOqnrojTaAdOyE" />
+      <ComponentRef Id="cmpmf_rR0fqfOajUlPCgdDc8HxfthE" />
+      <ComponentRef Id="cmptYbxPh8bxigVa0RhfYinRGg7qCc" />
+      <ComponentRef Id="cmp17cxOomRmD37JvvLBMi3j..oFoE" />
+      <ComponentRef Id="cmp.a_mP6dcZKhXxvdd2FimOZ1gt0U" />
+      <ComponentRef Id="cmpD80uTnCtdGeQPI30yg.z89KmxtI" />
+      <ComponentRef Id="cmp_3hxrV_vjcdIOlvk8KTYtsVFWP4" />
+      <ComponentRef Id="cmpymVvbBM7WS1ZfIeM5m8T7Lw3HGQ" />
+      <ComponentRef Id="cmpIHg4p.SNdo__hppX5NNrWQOwmNw" />
+      <ComponentRef Id="cmpaFhrsumtxr96gKayOIXYJbp.6yE" />
+      <ComponentRef Id="cmpm8WlisPTni4pxXnIXWGVfASrOJE" />
+      <ComponentRef Id="cmpX4qbtWSivvplquPDeVsV6qCg_OM" />
+      <ComponentRef Id="cmpI41ymVlG4n.Vt0Eev4MWx58nHNo" />
+      <ComponentRef Id="cmpfTGGOILPw.D9fnrIMSyw1mlQCSo" />
+      <ComponentRef Id="cmpcXNQ7KiZ7qAhkqAsdkI4e_4eGwM" />
+      <ComponentRef Id="cmpwoYv1nOePhj0lN8JM__OyTfPFJQ" />
+      <ComponentRef Id="cmpP6ZcLVvaLc8v1PbtRVUwgpTRUdE" />
+      <ComponentRef Id="cmpMvFL24uekoor_FVGRymRUwQr5j0" />
+      <ComponentRef Id="cmpwuVQA28MGQlRIuAuvuucVNCAdnM" />
+      <ComponentRef Id="cmprhzUJepN568k36KJCFx1uOm6YWk" />
+      <ComponentRef Id="cmpoa90ZvGY0IseA.8ES0RUStO2UAA" />
+      <ComponentRef Id="cmp58xVDqo.i46_XEJiNDICx8y_fR0" />
+      <ComponentRef Id="cmptefw43TmkkaokH1Hc7hHT1A09_4" />
+      <ComponentRef Id="cmpOtaGzwpdXx3Nbl6UFKt6_qr96_Y" />
+      <ComponentRef Id="cmprGaMHrh2TS61iAwHG15JfU8CLCQ" />
+      <ComponentRef Id="cmp4OyXhDgPwao6FBTiSLhjWeis.Ik" />
+      <ComponentRef Id="cmp_lZJKEFqnsk8BptwJCS2y_utAAM" />
+      <ComponentRef Id="cmp.cmqaiuBKmPlV_UNSG2yVMvfPOY" />
+      <ComponentRef Id="cmpk3OWtWg8h1PeXlRJLwfevG_Zb2s" />
+      <ComponentRef Id="cmpu2weZ.5kgWJkJ6tqMDcyFWqkLOw" />
+      <ComponentRef Id="cmpKObkFmHUilwzGcSlksQZllBu7Rw" />
+      <ComponentRef Id="cmpJx2RcUbMteSDtlYw7_mEUzWwWME" />
+      <ComponentRef Id="cmpmtVxQa55eF4Qe3xKc4YBgPRGpKU" />
+      <ComponentRef Id="cmpq8mJoQwQJte3O_srDEG0EEGeJcE" />
+      <ComponentRef Id="cmpdCG50CsprnnmIcJY5FXHRNcwjOA" />
+      <ComponentRef Id="cmpdJRnsH73VgB541Vvt1yG6ln3gSs" />
+      <ComponentRef Id="cmpX7nti9dCARDePeq843LmZqQCBdI" />
+      <ComponentRef Id="cmpardIU6jxs4Q2oW4ZWw2m6FhCNtk" />
+      <ComponentRef Id="cmp1u2YD4oFvvpjNNFpUfaAH4KA2os" />
+      <ComponentRef Id="cmpeJ.3Jb3_DUjrUaEVKMrGOFPT2E8" />
+      <ComponentRef Id="cmpn9mkzlcZt5Au2OOyU6Fg3ZcfvCI" />
+      <ComponentRef Id="cmpnQHk.A0yfbVb8rVdxqGfX6Kd_hA" />
+      <ComponentRef Id="cmpf123aqSnMhA91jDnibx5uCSzaJk" />
+      <ComponentRef Id="cmpJNAQ8xtzV56fIC0yI9OHHT2QiX0" />
+      <ComponentRef Id="cmpFzbE1dOW1kKu26VOXl0nphvyihI" />
+      <ComponentRef Id="cmpqdtpCPWSZILvH8zV_JMlp0sHRdU" />
+      <ComponentRef Id="cmp8glzaBSvfnxnPqmcDSQboWODAjk" />
+      <ComponentRef Id="cmpfH8FPdZeFgNJWBN.ExgtrUN8dzk" />
+      <ComponentRef Id="cmp36wxzTtRk_m2F51J9IgYSEUzGY8" />
+      <ComponentRef Id="cmpYTJ1fKyj0y21Cyah8gPbv2sVumo" />
+      <ComponentRef Id="cmpQtzgFMbIZ3DxU9UADwuj_Xa_duQ" />
+      <ComponentRef Id="cmp_ufm1z3o6P3815qq2A4znQklGKI" />
+      <ComponentRef Id="cmp3ZpqtrMK0KNY8QPl08ru4DWjJZM" />
+      <ComponentRef Id="cmpJzVaRn64RGlwnIYW274PdqMffog" />
+      <ComponentRef Id="cmp2dKN8_EDDDtlYVjIyjwLgi6DGtQ" />
+      <ComponentRef Id="cmpM4iB2GfTjPvkIq9pnFmjPqHnEEY" />
+      <ComponentRef Id="cmpCWhm0V28ImAxnkxkMfh_zBjwD3E" />
+      <ComponentRef Id="cmpDLNa0RMOaKZCMiM_1gH93MHHdls" />
+      <ComponentRef Id="cmpN.gwCxox18fIjQxyCoPh8UU.V9U" />
+      <ComponentRef Id="cmpeVZRNTI9lmx3vEqJtjrg9A29jKM" />
+      <ComponentRef Id="cmpEXa7oGuKkdt7O_oetVZesBKUiSw" />
+      <ComponentRef Id="cmpQwalb6Herzb.SDSHOmIURxOYHnM" />
+      <ComponentRef Id="cmp_Cdm6HyYztQVZsZU8AEJ3B._H4g" />
+      <ComponentRef Id="cmpaVRincjQcXMZJyxMId_BnnknvWM" />
+      <ComponentRef Id="cmpcFe48FqtQzIYRK8OD8Vwnbz7vy0" />
+      <ComponentRef Id="cmpBIYI1lKIhTuMwaWm1st3ImdIwB0" />
+      <ComponentRef Id="cmpKlMJLa2d87xZBrUXLBmok3ZZ7V4" />
+      <ComponentRef Id="cmpyas.qMSZgRI2Ve4Zxc1eUXtwW6c" />
+      <ComponentRef Id="cmpnaDFqjyxnOSWs_1klDQ3K5SSQsE" />
+      <ComponentRef Id="cmpHffnWJYsZI8Cbqdhxdcgpv9moYo" />
+      <ComponentRef Id="cmpkbn1hGpKwBWKUgLObSLDseXUQx0" />
+      <ComponentRef Id="cmpPoX3vT_jDhW8X1_WXMmOg_J2p8g" />
+      <ComponentRef Id="cmpGcbEpbmIiLBl96OWVHqaFzUsGuk" />
+      <ComponentRef Id="cmpHJ4iGe7oSf2rwrXMa4Uy9q5h3cU" />
+      <ComponentRef Id="cmplN3NXYXWXAc1KxliSmQK4BaxU5g" />
+      <ComponentRef Id="cmpPvCUQ.W_fGAavNLWUjZHGprsMkQ" />
+      <ComponentRef Id="cmphWiNZiFimWrNxiOjT.E96Uk8c_8" />
+      <ComponentRef Id="cmpf2oYD_pPvthnVpXUdQGqKe.1JaA" />
+      <ComponentRef Id="cmp07JNstTMXKM2rJId.YH9fvdPxoA" />
+      <ComponentRef Id="cmp_Rr.CXJ_Izi05MCj.EpFivxmVbI" />
+      <ComponentRef Id="cmpVOkLFeexlF4RDwuGocjQ9B2G8ZE" />
+      <ComponentRef Id="cmp7J6xfOWhBhF72iqUOUPxyI8ZNy4" />
+      <ComponentRef Id="cmpzXYSAL7Qaje17Fm__fK0RzO5Qm0" />
+      <ComponentRef Id="cmpgtnVUzcpp.6p0IP89KVr.W.MACs" />
+      <ComponentRef Id="cmp1sdskfeV1vpbV3Hy7mdpDw.IRuA" />
+      <ComponentRef Id="cmp4Ivh_pnW5gw_g2Mv_e7lKg_c_zo" />
+      <ComponentRef Id="cmpy41363FMqt8LIvlZbY6eIabOqz0" />
+      <ComponentRef Id="cmpEpqX4anh9bFo.w3m2WuYDbNQ7WQ" />
+      <ComponentRef Id="cmp8HLkNhJMdQFYmwCmQTg7rxlm8QM" />
+      <ComponentRef Id="cmp.hZ44QHiDCKFmkd_TgwfLJEzCz0" />
+      <ComponentRef Id="cmpuKnL0sROtwS2ndHig6Xs7BqtEcE" />
+      <ComponentRef Id="cmpnH20DCOO33huilbNg4yC1l3sFZs" />
+      <ComponentRef Id="cmpRaa_fvxpTSlyzWR0.xD3JgntKJU" />
+      <ComponentRef Id="cmp2zoPJwdt4yNVm6LaCbKoR6xR2eQ" />
+      <ComponentRef Id="cmpBzZbIDJTdcis69Hf6ZuKxpMPbT4" />
+      <ComponentRef Id="cmpv_GU_JvCSn0fSjG.ryDjLT8upvk" />
+      <ComponentRef Id="cmpl3tEWXj9F5RgbCXVhk2IbaJKsgs" />
+      <ComponentRef Id="cmpd07UFZoHMtEdBJTv5HEYIfvZp_s" />
+      <ComponentRef Id="cmpItkFtkMwkbaD48NrIpdIJ5myDdw" />
+      <ComponentRef Id="cmpuVog1VR_xmeZiJffl_LE_YAzcAc" />
+      <ComponentRef Id="cmpg8BaCbbMwJjBrmHy5plmwjPw1Ps" />
+      <ComponentRef Id="cmpgug3W5O7VxgFogaceTPNIKKX6uo" />
+      <ComponentRef Id="cmpLlXl38rQfFliigUnX00Z4Tu8f7g" />
+      <ComponentRef Id="cmp2rUHl0UhC8AdAWq9hGzjlWT4Ix0" />
+      <ComponentRef Id="cmpTibjKgfxFUHg0tKiLads5qcvIXI" />
+      <ComponentRef Id="cmpTfmTh_h9zIxJIVAuNL_.P9DxJgY" />
+      <ComponentRef Id="cmpOUqE2ZPZDgazvuHObSfoanmaeyE" />
+      <ComponentRef Id="cmpxQcwsEz6Oa1UxWfhiIXcK.RndoU" />
+      <ComponentRef Id="cmpiVPd.fT4qx5U1rQYnbTBbOL46HY" />
+      <ComponentRef Id="cmpOw4KJLU9xLcVK_oJEMIHcq3.oOo" />
+      <ComponentRef Id="cmp1zKCA1l80jicq.78lUPFXvKR6FI" />
+      <ComponentRef Id="cmpA1NmzNvDiIbFSk4t93VWgSZnYMc" />
+      <ComponentRef Id="cmp.XBULNYo6V4gBUs7YVstf_Hgdpk" />
+      <ComponentRef Id="cmp3BR8fQmGi9LArUFNM_Nt1.3Xqc0" />
+      <ComponentRef Id="cmpVs6RAAQF..83q.7buySJ41.RcJQ" />
+      <ComponentRef Id="cmpV8C5vQ91Y_KNvgApk9xNiBiu6uU" />
+      <ComponentRef Id="cmpiVV_D7KnWfBxJiPrdjT56fgfUEM" />
+      <ComponentRef Id="cmpAmDH5VXFb8BktYOvmWxFfe4mu1A" />
+      <ComponentRef Id="cmpt1WygeYM.zTmNOEpv8ZqIQsAYhI" />
+      <ComponentRef Id="cmpnmkXXljxexG360iZubWd1Y._Duk" />
+      <ComponentRef Id="cmplIdXmbD_p4CfLil4_4GTD0IM2Bk" />
+      <ComponentRef Id="cmp4BreJHwgM.pz7gleY6IXFPfiZ1M" />
+      <ComponentRef Id="cmpvwnKZzNUv5ZSsmuMDmTdOSIrs1Q" />
+      <ComponentRef Id="cmpiE8RrVIW3fnualEMdWtF1l.kcaQ" />
+      <ComponentRef Id="cmp6gS3a3sB2LPXjcTNucsawVWBda0" />
+      <ComponentRef Id="cmpHxX3ueHV2z4DPyfUV8Bs4JlEHkU" />
+      <ComponentRef Id="cmpA0MTiN9dV1H4HZuZJQRnHmG549A" />
+      <ComponentRef Id="cmpWebgAFqMHGiOBoJUFSlzyI35cRM" />
+      <ComponentRef Id="cmpK1VoD0L_lCo1K0EWQiLwWQ6mUU4" />
+      <ComponentRef Id="cmpoOYe7mSfWHGO5a3Mx6xEjcAOmrM" />
+      <ComponentRef Id="cmplniG1tUrrxu8Mm84fUTqYmERid4" />
+      <ComponentRef Id="cmpt47TF7g9ivr6w4wZ.yAUdG976zo" />
+      <ComponentRef Id="cmpj9eUy1BlHf11KcR7yV_3Gu7md98" />
+      <ComponentRef Id="cmpgTPXC23ZTf0sCYKV8IEZJZtyA_A" />
+      <ComponentRef Id="cmp_Mh9XUkosVTo.GMazXhbEVd2TXA" />
+      <ComponentRef Id="cmp_WQ99CMyzHal4M2k9zmMaJxu6Nc" />
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="Flotilla Desktop" />
+      </Directory>
+			<Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="Flotilla Desktop">
+          <Directory Id="ROCKPOOLFOLDER" Name="Rockpool">
+            <Component Win64="yes" Id="cmpklZUjU4Bx1UmitLIN8HpOAin6Z4">
+              <File Id="filpUdbUAq_7ku.Q4Hn3EScxnQ8K2c" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\index.html" />
+            </Component>
+            <Component Win64="yes" Id="cmpz7PLwxcgpAs.5O53Lzbg1.vpy38">
+              <File Id="filHQKKHHCL4C4OPaGKWDii9qZ2cvE" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\README.md" />
+            </Component>
+            <Component Win64="yes" Id="cmpHkfawKeUwhxGTohI27bXgR.zpzA">
+              <File Id="filab.ov7_C5Czyr_HnXXc4dzOCrvg" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\rockpool.py" />
+            </Component>
+            <Directory Id="dir5jBnAne0re_kzsksbA7heg6BVDI" Name="css">
+              <Component Win64="yes" Id="cmpo12BlvzHG3X9fqefdfa7dmJnSO0">
+                <File Id="filof9LMFtC28L7yVF8uTRNAl4a5WQ" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fancybox_overlay.png" />
+              </Component>
+              <Component Win64="yes" Id="cmpTkIeeMH5dHfe0gmyzyY.3AZahKk">
+                <File Id="filbyul37vZNt19vmY7oxdRAPiFo0U" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts.css" />
+              </Component>
+              <Component Win64="yes" Id="cmp3qikxRtbNKJDoqVZHhaxko4dHvM">
+                <File Id="filuyWPYi6huYMzEvBwtUl694_ECHA" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\jquery.fancybox.min.css" />
+              </Component>
+              <Component Win64="yes" Id="cmpYee340TwCK0LU3uwl3RisFxD50E">
+                <File Id="fillBRkASSs9qCLHJaEo1rYpwR0Cxw" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\pure-min.css" />
+              </Component>
+              <Component Win64="yes" Id="cmpXAGPT_mntYnfTzgOvwSt1pSpfGo">
+                <File Id="filQ3P_DfVorqdUiZBzAtJBcAyb.7U" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\rockpool.css" />
+              </Component>
+              <Component Win64="yes" Id="cmp7U41qsWjswSk6mBqNtT_mQRHr1E">
+                <File Id="fil_O9to1m0E2zX7xo2Ak0qrAbArQE" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\rockpool.css.map" />
+              </Component>
+              <Component Win64="yes" Id="cmp3FgCSUidwmJfSgaKT1Ruyz1kCrU">
+                <File Id="fil_8XFnstpU2D8LYzxw5d4UdqQE6w" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\spritesheet-rockpool.png" />
+              </Component>
+              <Component Win64="yes" Id="cmpqi1k_gBy.Sm4CrUje_Y8h5TLhww">
+                <File Id="filfH2F4kH8k0Vxh38L77jjW5Kziqs" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\spritesheet.png" />
+              </Component>
+              <Component Win64="yes" Id="cmpZ9LC5enafxcVpHea9FflgAce5ro">
+                <File Id="filU_3eJyg3U.Odi075zsumPwz679E" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\structure.css" />
+              </Component>
+              <Directory Id="dirabBCmyB5pqE8CSzDoiKU2tU7Kiw" Name="fonts">
+                <Component Win64="yes" Id="cmpsmDr0cFaK88rOfOqnrojTaAdOyE">
+                  <File Id="fillQ_AvLtm1blLDatmGzIdOD78efI" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\flotilla-regular-webfont.eot" />
+                </Component>
+                <Component Win64="yes" Id="cmpmf_rR0fqfOajUlPCgdDc8HxfthE">
+                  <File Id="filDMp8l45ZnTUTUEPFNP79MT2sFEY" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\flotilla-regular-webfont.svg" />
+                </Component>
+                <Component Win64="yes" Id="cmptYbxPh8bxigVa0RhfYinRGg7qCc">
+                  <File Id="filNDJJ9q8SivrIL68YY2zXUnq5V5s" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\flotilla-regular-webfont.ttf" />
+                </Component>
+                <Component Win64="yes" Id="cmp17cxOomRmD37JvvLBMi3j..oFoE">
+                  <File Id="filiuGLGTHiHvwW_x2dOExtprM90l0" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\flotilla-regular-webfont.woff" />
+                </Component>
+                <Component Win64="yes" Id="cmp.a_mP6dcZKhXxvdd2FimOZ1gt0U">
+                  <File Id="filuG3kFWVTjfUF54ZHtJl7ridyAMw" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\flotilla-regular-webfont.woff2" />
+                </Component>
+                <Component Win64="yes" Id="cmpD80uTnCtdGeQPI30yg.z89KmxtI">
+                  <File Id="fil9QdvNW_Quy6iJkEqNsTeNG.bE8I" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\Flotilla-Regular.otf" />
+                </Component>
+                <Component Win64="yes" Id="cmp_3hxrV_vjcdIOlvk8KTYtsVFWP4">
+                  <File Id="filTzHzpMkTgQ_vxGS5p2UPvsRMUms" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\flotilla.eot" />
+                </Component>
+                <Component Win64="yes" Id="cmpymVvbBM7WS1ZfIeM5m8T7Lw3HGQ">
+                  <File Id="filwNxQ4YBBhs.nt_i4llw9cLhJ21Y" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\flotilla.svg" />
+                </Component>
+                <Component Win64="yes" Id="cmpIHg4p.SNdo__hppX5NNrWQOwmNw">
+                  <File Id="filGDDvJr99xkDRl4S1wHTp_fRkK10" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\flotilla.ttf" />
+                </Component>
+                <Component Win64="yes" Id="cmpaFhrsumtxr96gKayOIXYJbp.6yE">
+                  <File Id="filt7AoWZcVpZtrpFtiOqmYwMKBCfM" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\flotilla.woff" />
+                </Component>
+                <Directory Id="dir4FujhCCXJuCcEaDsRHxXCH78qT0" Name="raleway">
+                  <Component Win64="yes" Id="cmpm8WlisPTni4pxXnIXWGVfASrOJE">
+                    <File Id="fil8Pu5vQtyft_bmHKaFiD2EZxMpEg" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\raleway\raleway-v11-latin-700.eot" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpX4qbtWSivvplquPDeVsV6qCg_OM">
+                    <File Id="filNdW1jS.L4B87YVukzgyCnpEtdX8" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\raleway\raleway-v11-latin-700.svg" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpI41ymVlG4n.Vt0Eev4MWx58nHNo">
+                    <File Id="filqNwChnz9iq2yFC41nQd6PbPPQUE" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\raleway\raleway-v11-latin-700.ttf" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpfTGGOILPw.D9fnrIMSyw1mlQCSo">
+                    <File Id="filKgURXhLPPwf1cD7skUOezL7sTro" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\raleway\raleway-v11-latin-700.woff" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpcXNQ7KiZ7qAhkqAsdkI4e_4eGwM">
+                    <File Id="filc5MyVkyaq8BTNfb3lJ_xVu_UOwU" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\raleway\raleway-v11-latin-700.woff2" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpwoYv1nOePhj0lN8JM__OyTfPFJQ">
+                    <File Id="fil4Gx1TEQZC8zjOFXHXBNuh2ZC890" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\raleway\raleway-v11-latin-regular.eot" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpP6ZcLVvaLc8v1PbtRVUwgpTRUdE">
+                    <File Id="fil8uyOE8iqfsOqF5W0FKhbUOynI3U" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\raleway\raleway-v11-latin-regular.svg" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpMvFL24uekoor_FVGRymRUwQr5j0">
+                    <File Id="filkn8ifzRC14e4EKMGHN4lr1WdOYM" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\raleway\raleway-v11-latin-regular.ttf" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpwuVQA28MGQlRIuAuvuucVNCAdnM">
+                    <File Id="filKEfMbGp4kPiR66fcw8k0SEoiH_4" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\raleway\raleway-v11-latin-regular.woff" />
+                  </Component>
+                  <Component Win64="yes" Id="cmprhzUJepN568k36KJCFx1uOm6YWk">
+                    <File Id="filNcfs39QdylEzxEZU13mLWgCfIUA" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\raleway\raleway-v11-latin-regular.woff2" />
+                  </Component>
+                </Directory>
+                <Directory Id="dirncx6bzRCdD0nHUPkBceQwbbRtMw" Name="roboto">
+                  <Component Win64="yes" Id="cmpoa90ZvGY0IseA.8ES0RUStO2UAA">
+                    <File Id="fil45.Vo_K_EIeOEVphfErPJ1xWJYE" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-300.eot" />
+                  </Component>
+                  <Component Win64="yes" Id="cmp58xVDqo.i46_XEJiNDICx8y_fR0">
+                    <File Id="fil3hZ7BSbDiExyQpiTQebTTzMvGas" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-300.svg" />
+                  </Component>
+                  <Component Win64="yes" Id="cmptefw43TmkkaokH1Hc7hHT1A09_4">
+                    <File Id="filK6.k0PHglfDN6RZatzAOyqG_Ca4" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-300.ttf" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpOtaGzwpdXx3Nbl6UFKt6_qr96_Y">
+                    <File Id="fil0wKpAOHHj7EWz62X.KMAeseauLE" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-300.woff" />
+                  </Component>
+                  <Component Win64="yes" Id="cmprGaMHrh2TS61iAwHG15JfU8CLCQ">
+                    <File Id="filiXu7Ko8hMN29iSWqKTrbSEOatzU" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-300.woff2" />
+                  </Component>
+                  <Component Win64="yes" Id="cmp4OyXhDgPwao6FBTiSLhjWeis.Ik">
+                    <File Id="filv9idr_Y1fwCQ0Tmsezjj0ntvyS4" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-500.eot" />
+                  </Component>
+                  <Component Win64="yes" Id="cmp_lZJKEFqnsk8BptwJCS2y_utAAM">
+                    <File Id="filUun9D7U0fmbbB2WxK.CUkcNp1dE" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-500.svg" />
+                  </Component>
+                  <Component Win64="yes" Id="cmp.cmqaiuBKmPlV_UNSG2yVMvfPOY">
+                    <File Id="fil6LFtsoyj.UJqSjlNV3H_inZswxA" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-500.ttf" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpk3OWtWg8h1PeXlRJLwfevG_Zb2s">
+                    <File Id="filT72_ngX8Uud4NFTJFKW7.iOkvMM" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-500.woff" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpu2weZ.5kgWJkJ6tqMDcyFWqkLOw">
+                    <File Id="filewLgHWah4WPBwre6YMb2VzTriIU" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-500.woff2" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpKObkFmHUilwzGcSlksQZllBu7Rw">
+                    <File Id="fileL7BM1NzWfFqkYnKFoWDwDxlf6E" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-700.eot" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpJx2RcUbMteSDtlYw7_mEUzWwWME">
+                    <File Id="filCScgwoHB5dmTCRYGINXpQXAyl7o" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-700.svg" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpmtVxQa55eF4Qe3xKc4YBgPRGpKU">
+                    <File Id="filep5hX.bR_KXkRDhoeySI7A3j6Xs" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-700.ttf" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpq8mJoQwQJte3O_srDEG0EEGeJcE">
+                    <File Id="filokD2zvCkmoJar6GIZR4zGRTbhsI" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-700.woff" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpdCG50CsprnnmIcJY5FXHRNcwjOA">
+                    <File Id="filz53DLM45.VvQrLMzjBKHu7eEgP0" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-700.woff2" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpdJRnsH73VgB541Vvt1yG6ln3gSs">
+                    <File Id="filUwlFMoHIQ.8pXLqODT2qWsziUDI" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-regular.eot" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpX7nti9dCARDePeq843LmZqQCBdI">
+                    <File Id="filphn6xWPUo1UiqMdpjVH66vsLAPI" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-regular.svg" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpardIU6jxs4Q2oW4ZWw2m6FhCNtk">
+                    <File Id="fil2O55Ba6IffBwFJieN9xDYOrdfjY" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-regular.ttf" />
+                  </Component>
+                  <Component Win64="yes" Id="cmp1u2YD4oFvvpjNNFpUfaAH4KA2os">
+                    <File Id="filV8o5E7mHC9JTQOU7xge1huBG6Bo" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-regular.woff" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpeJ.3Jb3_DUjrUaEVKMrGOFPT2E8">
+                    <File Id="filvJR0WszwZBeZqn9mGOuu6Gd1TMw" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\fonts\roboto\roboto-v16-latin-regular.woff2" />
+                  </Component>
+                </Directory>
+              </Directory>
+              <Directory Id="dirN7lb37LeRGvPZbhZZMYPKpF3x0g" Name="images">
+                <Component Win64="yes" Id="cmpn9mkzlcZt5Au2OOyU6Fg3ZcfvCI">
+                  <File Id="filAh_21aYAlop1qjxziZK_BRVKC_o" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\add-rule.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpnQHk.A0yfbVb8rVdxqGfX6Kd_hA">
+                  <File Id="filEmNUljbTj0PNoFjFbAiW2jMsYdg" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\background-kelp-distance.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpf123aqSnMhA91jDnibx5uCSzaJk">
+                  <File Id="fil8M2NvoaT4dNTIE8cgtPLSC8amZU" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\background-kelp.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpJNAQ8xtzV56fIC0yI9OHHT2QiX0">
+                  <File Id="filElycmFykdGtP4AybC_XUd7aa4qY" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\background-new.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpFzbE1dOW1kKu26VOXl0nphvyihI">
+                  <File Id="fil0fngUai.W2qgf0KeDBIQix8lQhg" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\background.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpqdtpCPWSZILvH8zV_JMlp0sHRdU">
+                  <File Id="fil_8BNFCYyiTtzqQ8gF_9SztxWiMY" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\bg-left.png" />
+                </Component>
+                <Component Win64="yes" Id="cmp8glzaBSvfnxnPqmcDSQboWODAjk">
+                  <File Id="filzSMKXT5_Iyc7mi_e22NyQv92U24" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\bg-life.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpfH8FPdZeFgNJWBN.ExgtrUN8dzk">
+                  <File Id="filt4ssxTnM9s2iKr3CGMuXESiWFRU" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\bg-right.png" />
+                </Component>
+                <Component Win64="yes" Id="cmp36wxzTtRk_m2F51J9IgYSEUzGY8">
+                  <File Id="filevR0Lefb2l7eniiEasiy4HXc98E" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\bg-sky.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpYTJ1fKyj0y21Cyah8gPbv2sVumo">
+                  <File Id="filnVVSqFzNmyLjSDLGs9v7y52_Otk" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\bg-waves.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpQtzgFMbIZ3DxU9UADwuj_Xa_duQ">
+                  <File Id="filBA1y4Ylrt4DenjGS_.f6dPw5UTM" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\blue-blue-waves.png" />
+                </Component>
+                <Component Win64="yes" Id="cmp_ufm1z3o6P3815qq2A4znQklGKI">
+                  <File Id="fil9.g4xMlpGyyJVyDuqfZ7mMkaGRU" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\blue-yellow-waves.png" />
+                </Component>
+                <Component Win64="yes" Id="cmp3ZpqtrMK0KNY8QPl08ru4DWjJZM">
+                  <File Id="filhQhDXPgV6ArB.i5uqJ0e0MtNJ.M" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\characters.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpJzVaRn64RGlwnIYW274PdqMffog">
+                  <File Id="filaNRbKBaTUHpSXu_pXDItvkcKruQ" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\chart-background.png" />
+                </Component>
+                <Component Win64="yes" Id="cmp2dKN8_EDDDtlYVjIyjwLgi6DGtQ">
+                  <File Id="fileA5nHjhfGvf8VvlkuHaGwMrjQLI" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\flotilla-anchor.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpM4iB2GfTjPvkIq9pnFmjPqHnEEY">
+                  <File Id="filjv40zrxYqD7WDtXzGVkJt6awbZE" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\flotilla-dock.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpCWhm0V28ImAxnkxkMfh_zBjwD3E">
+                  <File Id="filvkSgsM4cqX36TaS0Pc4unmNMq6A" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\flotilla.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpDLNa0RMOaKZCMiM_1gH93MHHdls">
+                  <File Id="filRKaLTRnu56seST3cW1og.LoO8Uc" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\help.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpN.gwCxox18fIjQxyCoPh8UU.V9U">
+                  <File Id="filHeIiEh.P4zl4n98TdmLgt.ZozAQ" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icon-empty.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpeVZRNTI9lmx3vEqJtjrg9A29jKM">
+                  <File Id="filOg88G9CSueWwwIomiokCwTCYXDw" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icon-motor.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpEXa7oGuKkdt7O_oetVZesBKUiSw">
+                  <File Id="filHc6.2FvSU5w2NSBVeFtMfT8eSAI" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icon-temperature.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpQwalb6Herzb.SDSHOmIURxOYHnM">
+                  <File Id="fil6y.9t2Wi48TfkWUyA7msCxMbX2c" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\jellyfish.png" />
+                </Component>
+                <Component Win64="yes" Id="cmp_Cdm6HyYztQVZsZU8AEJ3B._H4g">
+                  <File Id="filQ4Tp7bkAZndS3CMrMFzV9CPcuHw" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\octopus.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpaVRincjQcXMZJyxMId_BnnknvWM">
+                  <File Id="filgL.CQsfeMzEyJTUVBW2KH8llPcs" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\pipe.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpcFe48FqtQzIYRK8OD8Vwnbz7vy0">
+                  <File Id="filwTSrrhQw1vy.54bfWaSZVYK9IJI" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\rule-delete.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpBIYI1lKIhTuMwaWm1st3ImdIwB0">
+                  <File Id="filykG4.aGZHxaMu2zM3c7c2LpHQl0" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\rule-enabled.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpKlMJLa2d87xZBrUXLBmok3ZZ7V4">
+                  <File Id="filE4uweEpU01ZXqICaLbffuv8_Js8" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\starfish.png" />
+                </Component>
+                <Component Win64="yes" Id="cmpyas.qMSZgRI2Ve4Zxc1eUXtwW6c">
+                  <File Id="filwQwERsyGfyOxQu20tULJZ.nQIHk" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\tiny-waves.png" />
+                </Component>
+                <Directory Id="dirmgfA5iy9vmtaHSx7wANynKYucWo" Name="icons">
+                  <Component Win64="yes" Id="cmpnaDFqjyxnOSWs_1klDQ3K5SSQsE">
+                    <File Id="filZHQQocD80FmD_JiK5qek4w6zCpM" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-7seg.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpHffnWJYsZI8Cbqdhxdcgpv9moYo">
+                    <File Id="filHw_VQ9WhJDcpKA2FC7VKdM2nGwY" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-add.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpkbn1hGpKwBWKUgLObSLDseXUQx0">
+                    <File Id="fileaO3RCAW._ihxKxl9vZf63ajRSg" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-button.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpPoX3vT_jDhW8X1_WXMmOg_J2p8g">
+                    <File Id="filkcD2BX9btaP654aWXYItl1iLiRA" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-clock.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpGcbEpbmIiLBl96OWVHqaFzUsGuk">
+                    <File Id="filO4sNrCm4DKpfX36En3tyexY_rfo" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-colour.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpHJ4iGe7oSf2rwrXMa4Uy9q5h3cU">
+                    <File Id="filZ3Po9yiWLVbIeqE2pAR5tnDaS2g" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-decider.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmplN3NXYXWXAc1KxliSmQK4BaxU5g">
+                    <File Id="fildb3waXkrR4SDQSbn3J5TFZH6F1w" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-default-off.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpPvCUQ.W_fGAavNLWUjZHGprsMkQ">
+                    <File Id="fil9.Z07cXO7I2I8K2RcsyIAVL2kTc" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-default.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmphWiNZiFimWrNxiOjT.E96Uk8c_8">
+                    <File Id="filsz244ew.KGotTb_xqeXR9RxSQkk" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-dial.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpf2oYD_pPvthnVpXUdQGqKe.1JaA">
+                    <File Id="filAEuX7yj6hkUPZ1Mit4dvNMEtXYc" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-diff.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmp07JNstTMXKM2rJId.YH9fvdPxoA">
+                    <File Id="filJhvmlZSraoAmFT4iGZBVJncrQZ0" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-double.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmp_Rr.CXJ_Izi05MCj.EpFivxmVbI">
+                    <File Id="fildBkpyxkvF0YfuKq2LBkopR4Rxio" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-gt.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpVOkLFeexlF4RDwuGocjQ9B2G8ZE">
+                    <File Id="filBXpMravSyI9a7vFcOO7wO.DYiI8" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-half.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmp7J6xfOWhBhF72iqUOUPxyI8ZNy4">
+                    <File Id="filFnL8.N0UJY2m_xvlLRU_hA_LBjA" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-halve.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpzXYSAL7Qaje17Fm__fK0RzO5Qm0">
+                    <File Id="filh2JngEHq8tQ_Fk6u6zHE2y4l9Ew" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-invert.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpgtnVUzcpp.6p0IP89KVr.W.MACs">
+                    <File Id="filfz1xjgIGtBxFMZBj9C71SeQr9n8" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-joystick.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmp1sdskfeV1vpbV3Hy7mdpDw.IRuA">
+                    <File Id="filyfeIFf5OZmr.Y7qiMV1quj2Jtkc" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-keyboard-down.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmp4Ivh_pnW5gw_g2Mv_e7lKg_c_zo">
+                    <File Id="filWtoBm0cqXe7kRjGvxDYZMMMGVUs" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-keyboard-left.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpy41363FMqt8LIvlZbY6eIabOqz0">
+                    <File Id="filkB4YPUJvRq0LRpgaA14TYSgvXR8" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-keyboard-number.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpEpqX4anh9bFo.w3m2WuYDbNQ7WQ">
+                    <File Id="filI3whNqqdwiNxOdDIqEt5oBVxSxc" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-keyboard-right.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmp8HLkNhJMdQFYmwCmQTg7rxlm8QM">
+                    <File Id="filI2uL.Qr.gehJSs8j9R6YN1ZBNIQ" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-keyboard-up.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmp.hZ44QHiDCKFmkd_TgwfLJEzCz0">
+                    <File Id="fil9LjV5mw7KMQCZZgYbf2is8OhLdI" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-keyboard.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpuKnL0sROtwS2ndHig6Xs7BqtEcE">
+                    <File Id="filkhWgOH.P0h1ntyEuB1gPIy2jOh8" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-latch.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpnH20DCOO33huilbNg4yC1l3sFZs">
+                    <File Id="fil.axAQsVGCvJC6.d7p7o93vTVCZ8" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-light.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpRaa_fvxpTSlyzWR0.xD3JgntKJU">
+                    <File Id="fil3VbAXPCPyBWkaVQUxHW9.i2q3n0" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-lt.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmp2zoPJwdt4yNVm6LaCbKoR6xR2eQ">
+                    <File Id="filYlQiZaH5VkdkNjvjqb1phrUSaqY" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-matrix.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpBzZbIDJTdcis69Hf6ZuKxpMPbT4">
+                    <File Id="filJNhJecFhHWwPo_mCgNamQsU9Erc" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-max.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpv_GU_JvCSn0fSjG.ryDjLT8upvk">
+                    <File Id="filfrE618r_KTWxcQGM9R7mAqlp1LQ" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-min.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpl3tEWXj9F5RgbCXVhk2IbaJKsgs">
+                    <File Id="filz5V4l5fUU267R1IYv42Od4wMb_0" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-mix.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpd07UFZoHMtEdBJTv5HEYIfvZp_s">
+                    <File Id="filyYVGXEInGwr.BYUH.JI2nzGdENI" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-motor.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpItkFtkMwkbaD48NrIpdIJ5myDdw">
+                    <File Id="filqXdl7QSbxTARBRanSwytkRZTQzk" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-off.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpuVog1VR_xmeZiJffl_LE_YAzcAc">
+                    <File Id="filMG2457hznrMLXEAR0pyeA5SRWhU" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-on.jpg.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpg8BaCbbMwJjBrmHy5plmwjPw1Ps">
+                    <File Id="fil2Z8ac7oItN083t1SFSdQF2cTvg4" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-on.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpgug3W5O7VxgFogaceTPNIKKX6uo">
+                    <File Id="fildO.NcNRlbV5EVHrq7GR1T8b0WSI" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-pulse.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpLlXl38rQfFliigUnX00Z4Tu8f7g">
+                    <File Id="filtm5wAZX5tEvSfQxmHqctkl5s5ek" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-random.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmp2rUHl0UhC8AdAWq9hGzjlWT4Ix0">
+                    <File Id="filEFXbnn_GpOk0NFTvcHxsBLwPkgI" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-saw.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpTibjKgfxFUHg0tKiLads5qcvIXI">
+                    <File Id="filwBykuM1mIyoBOdLxqFC9VutX4Y0" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-sine.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpTfmTh_h9zIxJIVAuNL_.P9DxJgY">
+                    <File Id="filD12RqF4WFwKABFmtmdX2tt67Yeg" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-slider.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpOUqE2ZPZDgazvuHObSfoanmaeyE">
+                    <File Id="filH6W5BmrCNgW1WDgrTVPwogA0hh4" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-smooth.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpxQcwsEz6Oa1UxWfhiIXcK.RndoU">
+                    <File Id="filg4QHFtBxGPce0IXo2_a6TL5hGCs" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-square.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpiVPd.fT4qx5U1rQYnbTBbOL46HY">
+                    <File Id="filIIkskGbBGr0FGy4lo0qyHqYePg8" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-tank.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpOw4KJLU9xLcVK_oJEMIHcq3.oOo">
+                    <File Id="filNXGtv1vTeqDuixSpboBbesy8NJs" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-toggle.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmp1zKCA1l80jicq.78lUPFXvKR6FI">
+                    <File Id="filjqftBalF7RPEEc2.YEDsFKgUvD0" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-triangle.png" />
+                  </Component>
+                  <Component Win64="yes" Id="cmpA1NmzNvDiIbFSk4t93VWgSZnYMc">
+                    <File Id="filS_Fk2IQwgPz0X8cDRScdJy10xcI" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\images\icons\icon-variable.png" />
+                  </Component>
+                </Directory>
+              </Directory>
+              <Directory Id="dirb46kq1OK5.1yys2ATQXoQdncVQk" Name="rockpool">
+                <Component Win64="yes" Id="cmp.XBULNYo6V4gBUs7YVstf_Hgdpk">
+                  <File Id="filpAqH77JxulnqhJBgsTMhljI5ozk" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\css\rockpool\header.png" />
+                </Component>
+              </Directory>
+            </Directory>
+            <Directory Id="dirzoTE2knQBEj3dKZD7twnIQfGXDk" Name="js">
+              <Component Win64="yes" Id="cmp3BR8fQmGi9LArUFNM_Nt1.3Xqc0">
+                <File Id="fil36vwAwtmplZigY_HbLOY4yq7Scg" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.client.js" />
+              </Component>
+              <Component Win64="yes" Id="cmpVs6RAAQF..83q.7buySJ41.RcJQ">
+                <File Id="fil4ivIzddVHtuCMZF.DZvaL8XQ4q4" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.converters.js" />
+              </Component>
+              <Component Win64="yes" Id="cmpV8C5vQ91Y_KNvgApk9xNiBiu6uU">
+                <File Id="fil4Onll2e.Om3QeMe4Cf28n5fyyX0" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.find-hosts.worker.js" />
+              </Component>
+              <Component Win64="yes" Id="cmpiVV_D7KnWfBxJiPrdjT56fgfUEM">
+                <File Id="filBTMAicgZ6IRypjDTIsQTXqeq3Lk" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.inputs.js" />
+              </Component>
+              <Component Win64="yes" Id="cmpAmDH5VXFb8BktYOvmWxFfe4mu1A">
+                <File Id="filhhi8K1ilHyD62._K59n.Tr4BeIk" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.introduction.js" />
+              </Component>
+              <Component Win64="yes" Id="cmpt1WygeYM.zTmNOEpv8ZqIQsAYhI">
+                <File Id="filGLluZ1_rpz2G9hfCIbYOHTWQmNo" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.js" />
+              </Component>
+              <Component Win64="yes" Id="cmpnmkXXljxexG360iZubWd1Y._Duk">
+                <File Id="filmNhgVVsRXDZ1fYJ7aXLx04tz5as" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.languify.js" />
+              </Component>
+              <Component Win64="yes" Id="cmplIdXmbD_p4CfLil4_4GTD0IM2Bk">
+                <File Id="filW_mRjiemVAJE8_Gbn_.SufsJXXI" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.mock.js" />
+              </Component>
+              <Component Win64="yes" Id="cmp4BreJHwgM.pz7gleY6IXFPfiZ1M">
+                <File Id="filAYag1yFAUc.ZXxDG.F7gPAHgCAA" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.module.js" />
+              </Component>
+              <Component Win64="yes" Id="cmpvwnKZzNUv5ZSsmuMDmTdOSIrs1Q">
+                <File Id="filw5ReKEtXXhEfmdUJEmwaF3NB6ao" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.modules.js" />
+              </Component>
+              <Component Win64="yes" Id="cmpiE8RrVIW3fnualEMdWtF1l.kcaQ">
+                <File Id="filE7ElUWalY6iOMwtKUrwls9HVe_Y" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.outputs.js" />
+              </Component>
+              <Component Win64="yes" Id="cmp6gS3a3sB2LPXjcTNucsawVWBda0">
+                <File Id="filA_gcdwpMSZbm4.vFfqa.s9dCixA" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.palette.js" />
+              </Component>
+              <Component Win64="yes" Id="cmpHxX3ueHV2z4DPyfUV8Bs4JlEHkU">
+                <File Id="filAwnxjVBHXqzikkEkip1scCrO6Kg" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.personalise.js" />
+              </Component>
+              <Component Win64="yes" Id="cmpA0MTiN9dV1H4HZuZJQRnHmG549A">
+                <File Id="filCww8.BvIsyDN2KAILW9KP_GObtE" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.rule.js" />
+              </Component>
+              <Component Win64="yes" Id="cmpWebgAFqMHGiOBoJUFSlzyI35cRM">
+                <File Id="fil6xeqCYq4duSYy9mubt6mVcJtAqg" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.save.js" />
+              </Component>
+              <Component Win64="yes" Id="cmpK1VoD0L_lCo1K0EWQiLwWQ6mUU4">
+                <File Id="filptPGRNauD7mDgS_Wg_xWYOZKO0I" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.variables.js" />
+              </Component>
+              <Component Win64="yes" Id="cmpoOYe7mSfWHGO5a3Mx6xEjcAOmrM">
+                <File Id="fil6rzEJtn4esA0VKGVNWvne10kN3o" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\rockpool.widget.js" />
+              </Component>
+              <Component Win64="yes" Id="cmplniG1tUrrxu8Mm84fUTqYmERid4">
+                <File Id="filGQM0HNkHRkNaSwRpLiuE40f0Frw" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\socket.io.min.js" />
+              </Component>
+              <Component Win64="yes" Id="cmpt47TF7g9ivr6w4wZ.yAUdG976zo">
+                <File Id="filwvtUNOrGYfBdY1xJj6cbj3p1o3I" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\WebSocketMain.swf" />
+              </Component>
+              <Directory Id="dirUyvA8VEJ_b3LxDLC0.n6vusO73A" Name="lib">
+                <Component Win64="yes" Id="cmpj9eUy1BlHf11KcR7yV_3Gu7md98">
+                  <File Id="filMKLy5AY_9RM.BjV8or8o3zhr.o0" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\lib\fastclick.js" />
+                </Component>
+                <Component Win64="yes" Id="cmpgTPXC23ZTf0sCYKV8IEZJZtyA_A">
+                  <File Id="filnzbfChGt_SKjlYGGUi2UyBhB8LQ" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\lib\FileSaver.min.js" />
+                </Component>
+                <Component Win64="yes" Id="cmp_Mh9XUkosVTo.GMazXhbEVd2TXA">
+                  <File Id="fila3iHdBB.TEj_IkV2JFs.qVawGRM" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\lib\jquery-2.1.1.min.js" />
+                </Component>
+                <Component Win64="yes" Id="cmp_WQ99CMyzHal4M2k9zmMaJxu6Nc">
+                  <File Id="fil.y9r9mDgkMmDFfGhxD9fx7WO.8I" KeyPath="yes" Source="C:\Users\dxdec\Documents\Development\Pimoroni\flotilla-rockpool-retheme\js\lib\jquery.fancybox.min.js" />
+                </Component>
+              </Directory>
+            </Directory>
+          </Directory>
+        </Directory>
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+			<!-- TODO: Remove the comments around this Component element and the ComponentRef below in order to add resources to this installer. -->
+			<!-- <Component Id="ProductComponent"> -->
+				<!-- TODO: Insert files, registry keys, and other resources here. -->
+			<!-- </Component> -->
+		</ComponentGroup>
+	</Fragment>
+	<Fragment>
+	  <ComponentGroup Id="ProgramFilesFolder_files" Directory="INSTALLFOLDER">
+	    <Component Win64="yes" Id="Flotilla.exe" Guid="e570b71d-a062-4156-b6dc-66bdcdf460bd">
+	      <File ProcessorArchitecture="x64" Id="Flotilla.exe" Name="Flotilla.exe" Source="$(var.Flotilla_TargetDir)Flotilla.exe" />
+        <File ProcessorArchitecture="x64" Id="libserialport-0.dll" Name="libserialport-0.dll" Source="$(var.Flotilla_TargetDir)libserialport-0.dll" />
+        <ServiceInstall
+          Id="ServiceInstaller"
+          Type="ownProcess"
+          Vital="yes"
+          Name="PimoroniFlotilla"
+          DisplayName="Pimoroni Flotilla Dock Service"
+          Description="Service for communicating with the Pimoroni Flotilla Dock"
+          Start="auto"
+          Account="LocalSystem"
+          ErrorControl="ignore"
+          Interactive="no"
+              >
+        </ServiceInstall>
+        <ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="PimoroniFlotilla" Wait="yes" />
+	    </Component>
+	  </ComponentGroup>
+	</Fragment>
+</Wix>
